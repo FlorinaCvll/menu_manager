@@ -1,6 +1,6 @@
 import UsuariosManager from "@/components/admin/UsuariosManager";
-import { requireAdmin } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import {requireAdmin} from "@/lib/auth";
+import {prisma} from "@/lib/prisma";
 
 export default async function UsuariosPage() {
   const sesion = await requireAdmin();
@@ -17,16 +17,27 @@ export default async function UsuariosPage() {
 
   return (
     <UsuariosManager
-      usuarios={usuarios.map((usuario) => ({
-        idPersona: usuario.idPersona,
-        nombre: usuario.nombre,
-        apellidos: usuario.apellidos,
-        telefono: usuario.telefono,
-        rol: usuario.rol as "admin" | "camarero",
-        comentarios: usuario.comentarios,
-        fechaAlta: usuario.fechaAlta?.toISOString() || null,
-        fechaBaja: usuario.fechaBaja?.toISOString() || null,
-      }))}
+        usuarios={usuarios.map(
+            (usuario: {
+                idPersona: number;
+                nombre: string;
+                apellidos: string | null;
+                telefono: string | null;
+                rol: string;
+                comentarios: string | null;
+                fechaAlta: Date | null;
+                fechaBaja: Date | null;
+            }) => ({
+                idPersona: usuario.idPersona,
+                nombre: usuario.nombre,
+                apellidos: usuario.apellidos,
+                telefono: usuario.telefono,
+                rol: usuario.rol as "admin" | "camarero",
+                comentarios: usuario.comentarios,
+                fechaAlta: usuario.fechaAlta?.toISOString() || null,
+                fechaBaja: usuario.fechaBaja?.toISOString() || null,
+            })
+        )}
     />
   );
 }

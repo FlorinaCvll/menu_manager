@@ -1,8 +1,8 @@
-import { notFound } from "next/navigation";
+import {notFound} from "next/navigation";
 import EditarComandaForm from "@/components/camarero/EditarComandaForm";
-import { requireCamareroOAdmin } from "@/lib/auth";
-import { obtenerFechaSolo } from "@/lib/fechas";
-import { prisma } from "@/lib/prisma";
+import {requireCamareroOAdmin} from "@/lib/auth";
+import {obtenerFechaSolo} from "@/lib/fechas";
+import {prisma} from "@/lib/prisma";
 
 type Params = {
   params: Promise<{ id: string }>;
@@ -102,10 +102,10 @@ export default async function EditarComandaPage({ params }: Params) {
   )) as FilaPlatoComanda[];
 
   const menuBase =
-    menuHoy?.menu_plato.map((item) => ({
+      menuHoy?.menu_plato.map((item: { plato: { idPlato: number; nombre: string; tipoPlato: string } }) => ({
       idPlato: item.plato.idPlato,
       nombre: item.plato.nombre,
-      tipoPlato: item.plato.tipoPlato,
+        tipoPlato: item.plato.tipoPlato as "primero" | "segundo" | "postre" | "racion",
     })) || [];
 
   const menuDelDia = [
@@ -114,20 +114,20 @@ export default async function EditarComandaPage({ params }: Params) {
   ];
 
   const raciones = mezclarPlatos(
-    racionesBase.map((plato) => ({
+      racionesBase.map((plato: { idPlato: number; nombre: string; tipoPlato: string }) => ({
       idPlato: plato.idPlato,
       nombre: plato.nombre,
-      tipoPlato: plato.tipoPlato,
+        tipoPlato: plato.tipoPlato as "primero" | "segundo" | "postre" | "racion",
     })),
     lineas,
     "racion"
   );
 
   const postres = mezclarPlatos(
-    postresBase.map((plato) => ({
+      postresBase.map((plato: { idPlato: number; nombre: string; tipoPlato: string }) => ({
       idPlato: plato.idPlato,
       nombre: plato.nombre,
-      tipoPlato: plato.tipoPlato,
+        tipoPlato: plato.tipoPlato as "primero" | "segundo" | "postre" | "racion",
     })),
     lineas,
     "postre"

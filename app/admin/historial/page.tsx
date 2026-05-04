@@ -1,37 +1,47 @@
-import { requireAdmin } from "@/lib/auth";
-import { formatearFecha } from "@/lib/fechas";
-import { prisma } from "@/lib/prisma";
+import {requireAdmin} from "@/lib/auth";
+import {formatearFecha} from "@/lib/fechas";
+import {prisma} from "@/lib/prisma";
+import type {Prisma} from "@/generated/prisma/client";
 
 export default async function HistorialPage() {
-  const sesion = await requireAdmin();
-  const menus = await prisma.menu.findMany({
-    where: {
-      idNegocio: sesion.idNegocio,
-    },
-    orderBy: {
-      fecha: "desc",
-    },
-    include: {
-      persona: true,
-      menu_plato: {
+    const sesion = await requireAdmin();
+    const menus: Prisma.menuGetPayload<{
         include: {
-          plato: true,
+            persona: true;
+            menu_plato: {
+                include: {
+                    plato: true;
+                };
+            };
+        };
+    }>[] = await prisma.menu.findMany({
+        where: {
+            idNegocio: sesion.idNegocio,
         },
-      },
-    },
-  });
+        orderBy: {
+            fecha: "desc",
+        },
+        include: {
+            persona: true,
+            menu_plato: {
+                include: {
+                    plato: true,
+                },
+            },
+        },
+    });
 
-  return (
-    <section className="glass-card p-6">
-      <h2 className="section-title text-3xl font-semibold text-white">
-        Historial de menús
-      </h2>
-      <p className="mt-2 text-sm text-[var(--muted)]">
-        Consulta los menús guardados por fecha y su composición.
-      </p>
+    return (
+        <section className="glass-card p-6">
+            <h2 className="section-title text-3xl font-semibold text-white">
+                Historial de menús
+            </h2>
+            <p className="mt-2 text-sm text-[var(--muted)]">
+                Consulta los menús guardados por fecha y su composición.
+            </p>
 
-      <div className="mt-6 space-y-4">
-        {menus.map((menu) => (
+            <div className="mt-6 space-y-4">
+                {menus.map((menu) => (
           <article
             key={menu.idMenu}
             className=" border border-white/10 bg-white/6 p-5"
@@ -63,7 +73,7 @@ export default async function HistorialPage() {
             <div className="mt-4 grid gap-4 md:grid-cols-3">
               {(["primero", "segundo", "postre"] as const).map((tipo) => {
                 const platos = menu.menu_plato.filter(
-                  (item) => item.plato.tipoPlato === tipo
+                    (item: { plato: { tipoPlato: string } }) => item.plato.tipoPlato === tipo
                 );
 
                 return (
@@ -80,7 +90,7 @@ export default async function HistorialPage() {
                     </p>
                     <div className="mt-3 space-y-2">
                       {platos.length > 0 ? (
-                        platos.map((item) => (
+                          platos.map((item: { idPlato: number; plato: { nombre: string } }) => (
                           <p key={item.idPlato} className="text-sm text-white">
                             {item.plato.nombre}
                           </p>

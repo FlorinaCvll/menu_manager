@@ -1,6 +1,6 @@
 import PlatosManager from "@/components/admin/PlatosManager";
-import { requireAdmin } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import {requireAdmin} from "@/lib/auth";
+import {prisma} from "@/lib/prisma";
 
 export default async function RacionesPage() {
   await requireAdmin();
@@ -19,7 +19,13 @@ export default async function RacionesPage() {
       titulo="Raciones"
       descripcion="Catálogo de platos que se mantienen siempre disponibles fuera del menú del día."
       tipo="racion"
-      platos={raciones.map((plato) => ({
+      platos={raciones.map((plato: {
+          idPlato: number;
+          nombre: string;
+          precioIndividual: any;
+          ingredientes: string | null;
+          alergenos: string | null
+      }) => ({
         idPlato: plato.idPlato,
         nombre: plato.nombre,
         precioIndividual: Number(plato.precioIndividual || 0),

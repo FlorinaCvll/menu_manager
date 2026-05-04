@@ -1,7 +1,7 @@
 import ComandasManager from "@/components/camarero/ComandasManager";
-import { requireCamareroOAdmin } from "@/lib/auth";
-import { formatearFechaHora, inicioDelDia, obtenerFechaSolo } from "@/lib/fechas";
-import { prisma } from "@/lib/prisma";
+import {requireCamareroOAdmin} from "@/lib/auth";
+import {formatearFechaHora, inicioDelDia, obtenerFechaSolo} from "@/lib/fechas";
+import {prisma} from "@/lib/prisma";
 
 type FilaPlatoComanda = {
   idComanda: number;
@@ -51,7 +51,7 @@ export default async function ComandasPage() {
     }),
   ]);
 
-  const idsComanda = comandasBase.map((comanda) => comanda.idComanda);
+  const idsComanda = comandasBase.map((comanda: { idComanda: number }) => comanda.idComanda);
 
   let filasPlatos: FilaPlatoComanda[] = [];
 
@@ -77,23 +77,30 @@ export default async function ComandasPage() {
   return (
     <ComandasManager
       menuDelDia={
-        menuHoy?.menu_plato.map((item) => ({
+          menuHoy?.menu_plato.map((item: { plato: { idPlato: number; nombre: string; tipoPlato: string } }) => ({
           idPlato: item.plato.idPlato,
           nombre: item.plato.nombre,
-          tipoPlato: item.plato.tipoPlato,
+            tipoPlato: item.plato.tipoPlato as "primero" | "segundo" | "postre" | "racion",
         })) || []
       }
-      raciones={raciones.map((plato) => ({
+      raciones={raciones.map((plato: { idPlato: number; nombre: string; tipoPlato: string }) => ({
         idPlato: plato.idPlato,
         nombre: plato.nombre,
-        tipoPlato: plato.tipoPlato,
+        tipoPlato: plato.tipoPlato as "primero" | "segundo" | "postre" | "racion",
       }))}
-      postres={postres.map((plato) => ({
+      postres={postres.map((plato: { idPlato: number; nombre: string; tipoPlato: string }) => ({
         idPlato: plato.idPlato,
         nombre: plato.nombre,
-        tipoPlato: plato.tipoPlato,
+        tipoPlato: plato.tipoPlato as "primero" | "segundo" | "postre" | "racion",
       }))}
-      comandas={comandasBase.map((comanda) => ({
+      comandas={comandasBase.map((comanda: {
+        idComanda: number;
+        fecha: Date;
+        numMesa: number;
+        numComensales: number;
+        estado: string;
+        empresa: boolean | null
+      }) => ({
         idComanda: comanda.idComanda,
         fecha: formatearFechaHora(comanda.fecha),
         numMesa: comanda.numMesa,

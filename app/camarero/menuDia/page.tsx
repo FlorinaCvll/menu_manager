@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { ClipboardList } from "lucide-react";
+import {ClipboardList} from "lucide-react";
 import BotonImprimir from "@/components/shared/BotonImprimir";
-import { requireCamareroOAdmin } from "@/lib/auth";
-import { formatearFecha, obtenerFechaSolo } from "@/lib/fechas";
-import { prisma } from "@/lib/prisma";
+import {requireCamareroOAdmin} from "@/lib/auth";
+import {formatearFecha, obtenerFechaSolo} from "@/lib/fechas";
+import {prisma} from "@/lib/prisma";
 
 export default async function MenuDiaPage() {
   const sesion = await requireCamareroOAdmin();
@@ -25,17 +25,17 @@ export default async function MenuDiaPage() {
 
   const grupos = {
     primeros:
-      menu?.menu_plato.filter((item) => item.plato.tipoPlato === "primero") || [],
+        menu?.menu_plato.filter((item: { plato: { tipoPlato: string } }) => item.plato.tipoPlato === "primero") || [],
     segundos:
-      menu?.menu_plato.filter((item) => item.plato.tipoPlato === "segundo") || [],
+        menu?.menu_plato.filter((item: { plato: { tipoPlato: string } }) => item.plato.tipoPlato === "segundo") || [],
     postres:
-      menu?.menu_plato.filter((item) => item.plato.tipoPlato === "postre") || [],
+        menu?.menu_plato.filter((item: { plato: { tipoPlato: string } }) => item.plato.tipoPlato === "postre") || [],
   };
 
   const totalPlatos =
     grupos.primeros.length + grupos.segundos.length + grupos.postres.length;
   const observaciones = menu?.datosAdicionales?.trim() || "";
-  const hayNombreLargo = menu?.menu_plato.some((item) => item.plato.nombre.length > 28);
+  const hayNombreLargo = menu?.menu_plato.some((item: { plato: { nombre: string } }) => item.plato.nombre.length > 28);
   const modoCompacto =
     totalPlatos >= 11 || observaciones.length > 120 || Boolean(hayNombreLargo);
 
@@ -112,7 +112,7 @@ export default async function MenuDiaPage() {
                 <div className="menu-paper-line mt-3" />
                 <div className="mt-4 space-y-3">
                   {items.length > 0 ? (
-                    items.map((item) => (
+                      items.map((item: { idPlato: number; plato: { nombre: string } }) => (
                       <p
                         key={item.idPlato}
                         className="border-b border-dashed border-emerald-900/15 pb-2 text-center text-[15px] leading-6 text-[#1f3d36]"

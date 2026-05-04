@@ -1,14 +1,8 @@
 import Link from "next/link";
-import {
-  ClipboardList,
-  Dessert,
-  Plus,
-  Soup,
-  UsersRound,
-} from "lucide-react";
-import { requireAdmin } from "@/lib/auth";
-import { obtenerFechaSolo, inicioDelDia } from "@/lib/fechas";
-import { prisma } from "@/lib/prisma";
+import {ClipboardList, Dessert, Plus, Soup, UsersRound,} from "lucide-react";
+import {requireAdmin} from "@/lib/auth";
+import {inicioDelDia, obtenerFechaSolo} from "@/lib/fechas";
+import {prisma} from "@/lib/prisma";
 
 export default async function AdminPage() {
   const sesion = await requireAdmin();
@@ -34,6 +28,13 @@ export default async function AdminPage() {
           where: { idNegocio: sesion.idNegocio, fecha: { gte: hoy } },
         }),
       ]);
+
+  const camarerosTyped: {
+    idPersona: number;
+    nombre: string;
+    apellidos: string | null;
+    telefono: string | null
+  }[] = camareros;
 
   const tarjetasResumen = [
     { label: "Usuarios activos", value: usuariosActivos, icon: UsersRound, href: "/admin/usuarios" },
@@ -140,8 +141,8 @@ export default async function AdminPage() {
             </div>
 
             <div className="mt-6 space-y-3">
-              {camareros.length ? (
-                  camareros.map((camarero) => (
+              {camarerosTyped.length ? (
+                  camarerosTyped.map((camarero) => (
                       <div
                           key={camarero.idPersona}
                           className="flex flex-col gap-3 border border-[var(--line)] bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between"

@@ -1,6 +1,6 @@
 import PlatosManager from "@/components/admin/PlatosManager";
-import { requireAdmin } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import {requireAdmin} from "@/lib/auth";
+import {prisma} from "@/lib/prisma";
 
 export default async function PostresPage() {
   await requireAdmin();
@@ -19,7 +19,13 @@ export default async function PostresPage() {
       titulo="Postres"
       descripcion="Gestiona los postres que pueden servirse solos o para cerrar una comanda."
       tipo="postre"
-      platos={postres.map((plato) => ({
+      platos={postres.map((plato: {
+          idPlato: number;
+          nombre: string;
+          precioIndividual: any;
+          ingredientes: string | null;
+          alergenos: string | null
+      }) => ({
         idPlato: plato.idPlato,
         nombre: plato.nombre,
         precioIndividual: Number(plato.precioIndividual || 0),
