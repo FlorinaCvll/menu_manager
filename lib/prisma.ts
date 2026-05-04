@@ -1,12 +1,15 @@
-import "dotenv/config";
-import { PrismaClient } from "../generated/prisma/client";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import {PrismaClient} from "@prisma/client";
+import {PrismaMariaDb} from "@prisma/adapter-mariadb";
 
 const globalForPrisma = globalThis as unknown as {
     prisma: PrismaClient | undefined;
 };
 
-const connectionString = process.env.DATABASE_URL!;
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+    throw new Error("DATABASE_URL no está definida");
+}
 
 export const prisma =
     globalForPrisma.prisma ??
