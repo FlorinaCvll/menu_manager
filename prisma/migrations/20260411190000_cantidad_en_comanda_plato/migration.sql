@@ -1,0 +1,2 @@
+ALTER TABLE `comanda_plato`
+ADD COLUMN `cantidad` INTEGER NOT NULL DEFAULT 1;

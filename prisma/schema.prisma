@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model comanda {
+  idComanda     Int             @id @default(autoincrement())
+  fecha         DateTime        @db.DateTime(0)
+  numMesa       Int
+  numComensales Int
+  estado        String          @default("abierta") @db.VarChar(20)
+  empresa       Boolean?        @default(false)
+  idPersona     Int
+  idNegocio     Int
+  persona       persona         @relation(fields: [idPersona], references: [idPersona], onDelete: NoAction, onUpdate: NoAction, map: "comanda_ibfk_1")
+  negocio       negocio         @relation(fields: [idNegocio], references: [idNegocio], onDelete: NoAction, onUpdate: NoAction, map: "comanda_ibfk_2")
+  comanda_plato comanda_plato[]
+
+  @@index([idNegocio], map: "idNegocio")
+  @@index([idPersona], map: "idPersona")
+}
+
+model comanda_plato {
+  idComanda Int
+  idPlato   Int
+  cantidad  Int      @default(1)
+  comanda   comanda @relation(fields: [idComanda], references: [idComanda], onDelete: Cascade, onUpdate: NoAction, map: "comanda_plato_ibfk_1")
+  plato     plato   @relation(fields: [idPlato], references: [idPlato], onDelete: Cascade, onUpdate: NoAction, map: "comanda_plato_ibfk_2")
+
+  @@id([idComanda, idPlato])
+  @@index([idPlato], map: "idPlato")
+}
+
+model menu {
+  idMenu           Int          @id @default(autoincrement())
+  fecha            DateTime     @db.Date
+  precio           Decimal      @db.Decimal(10, 2)
+  precioMedio      Decimal      @db.Decimal(10, 2)
+  precioTerraza    Decimal      @db.Decimal(10, 2)
+  datosAdicionales String?      @db.Text
+  idPersona        Int
+  idNegocio        Int
+  negocio          negocio      @relation(fields: [idNegocio], references: [idNegocio], onDelete: Cascade, onUpdate: NoAction, map: "fk_menu_negocio")
+  persona          persona      @relation(fields: [idPersona], references: [idPersona], onUpdate: NoAction, map: "fk_menu_persona")
+  menu_plato       menu_plato[]
+
+  @@unique([idNegocio, fecha], map: "idNegocio")
+  @@index([idPersona], map: "fk_menu_persona")
+}
+
+model menu_plato {
+  idMenu  Int
+  idPlato Int
+  menu    menu  @relation(fields: [idMenu], references: [idMenu], onDelete: Cascade, onUpdate: NoAction, map: "menu_plato_ibfk_1")
+  plato   plato @relation(fields: [idPlato], references: [idPlato], onDelete: Cascade, onUpdate: NoAction, map: "menu_plato_ibfk_2")
+
+  @@id([idMenu, idPlato])
+  @@index([idPlato], map: "idPlato")
+}
+
+model negocio {
+  idNegocio              Int       @id @default(autoincrement())
+  nombre                 String    @db.VarChar(100)
+  direccion              String    @db.VarChar(255)
+  telefono               String?   @db.VarChar(20)
+  estado                 String?   @default("activo") @db.VarChar(50)
+  fechaAlta              DateTime? @db.Date
+  CIF_NIF                String    @db.VarChar(20)
+  documentoPropiedadUrl String? @db.VarChar(255)
+  comanda                comanda[]
+  menu                   menu[]
+  persona                persona[]
+}
+
+model persona {
+  idPersona   Int         @id @default(autoincrement())
+  nombre      String      @db.VarChar(100)
+  apellidos   String?     @db.VarChar(150)
+  telefono    String?     @db.VarChar(20)
+  pin         String      @db.Char(100)
+  rol         persona_rol @default(camarero)
+  fechaAlta   DateTime?   @db.Date
+  fechaBaja   DateTime?   @db.Date
+  comentarios String?     @db.Text
+  idNegocio   Int
+  comanda     comanda[]
+  menu        menu[]
+  negocio     negocio     @relation(fields: [idNegocio], references: [idNegocio], onDelete: Cascade, map: "fk_persona_negocio")
+
+  @@index([idNegocio], map: "fk_persona_negocio")
+}
+
+model solicitud_alta {
+  idSolicitudAlta        Int       @id @default(autoincrement())
+  nombreRestaurante      String    @db.VarChar(100)
+  CIF_NIF                String    @db.VarChar(20)
+  personaContacto        String    @db.VarChar(150)
+  email                  String    @db.VarChar(255)
+  telefono               String    @db.VarChar(20)
+  direccion              String    @db.VarChar(255)
+  ciudad                 String    @db.VarChar(100)
+  numeroLocales          String    @db.VarChar(10)
+  comentarios            String?   @db.Text
+  documentoPropiedadUrl  String    @db.VarChar(255)
+  adminPinHash           String    @db.Char(100)
+  estado                 String    @default("pendiente_pago") @db.VarChar(50)
+  stripeCheckoutSessionId String?  @unique @db.VarChar(255)
+  stripePaymentIntentId  String?   @db.VarChar(255)
+  fechaSolicitud         DateTime  @default(now()) @db.DateTime(0)
+  fechaPago              DateTime? @db.DateTime(0)
+  fechaRevision          DateTime? @db.DateTime(0)
+  motivoRechazo          String?   @db.Text
+  idNegocioCreado        Int?
+  idPersonaAdminCreada   Int?
+}
+
+model plato {
+  idPlato          Int             @id @default(autoincrement())
+  nombre           String          @db.VarChar(100)
+  precioIndividual Decimal?        @default(0.00) @db.Decimal(10, 2)
+  ingredientes     String?         @db.Text
+  alergenos        String?         @db.Text
+  tipoPlato        plato_tipoPlato
+  comanda_plato    comanda_plato[]
+  menu_plato       menu_plato[]
+}
+
+enum persona_rol {
+  superadmin
+  admin
+  camarero
+}
+
+enum plato_tipoPlato {
+  primero
+  segundo
+  postre
+  racion
+}
