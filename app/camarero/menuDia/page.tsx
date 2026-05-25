@@ -3,25 +3,13 @@ import {ClipboardList} from "lucide-react";
 import BotonImprimir from "@/components/shared/BotonImprimir";
 import {requireCamareroOAdmin} from "@/lib/auth";
 import {formatearFecha, obtenerFechaSolo} from "@/lib/fechas";
-import {prisma} from "@/lib/prisma";
+import {obtenerMenuDiaCacheado} from "@/lib/consultas-cache";
 
 export default async function MenuDiaPage() {
   const sesion = await requireCamareroOAdmin();
   const fechaMenu = obtenerFechaSolo();
 
-  const menu = await prisma.menu.findFirst({
-    where: {
-      idNegocio: sesion.idNegocio,
-      fecha: fechaMenu,
-    },
-    include: {
-      menu_plato: {
-        include: {
-          plato: true,
-        },
-      },
-    },
-  });
+    const menu = await obtenerMenuDiaCacheado(sesion.idNegocio, fechaMenu);
 
   const grupos = {
     primeros:

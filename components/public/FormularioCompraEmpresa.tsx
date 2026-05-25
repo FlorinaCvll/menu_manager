@@ -4,8 +4,6 @@ import React, { useState } from "react";
 import {
   ArrowRight,
   Building2,
-  CreditCard,
-  FileText,
   Store,
   Upload,
 } from "lucide-react";
@@ -37,9 +35,16 @@ const datosIniciales: DatosCompra = {
   comentarios: "",
 };
 
-export default function FormularioCompraEmpresa() {
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const [solicitudPreparada, setSolicitudPreparada] = useState(false);
+type FormularioCompraEmpresaProps = {
+  mostrarFormulario: boolean;
+  onMostrarFormulario: () => void;
+};
+
+export default function FormularioCompraEmpresa({
+                                                  mostrarFormulario,
+                                                  onMostrarFormulario,
+                                                }: FormularioCompraEmpresaProps)
+{
   const [datosCompra, setDatosCompra] = useState(datosIniciales);
   const [documentoTitularidad, setDocumentoTitularidad] = useState<File | null>(
     null,
@@ -83,7 +88,6 @@ export default function FormularioCompraEmpresa() {
         return;
       }
 
-      setSolicitudPreparada(true);
       window.location.href = datos.checkoutUrl;
     } catch {
       setError("Ha ocurrido un error preparando el pago.");
@@ -125,7 +129,7 @@ export default function FormularioCompraEmpresa() {
           {!mostrarFormulario ? (
             <button
               type="button"
-              onClick={() => setMostrarFormulario(true)}
+              onClick={onMostrarFormulario}
               className="primary-button mt-8"
             >
               Solicitar alta
@@ -402,7 +406,7 @@ export default function FormularioCompraEmpresa() {
           ) : (
             <div className="mt-7 rounded-[1.7rem] border border-dashed border-stone-300 px-5 py-8 text-center">
               <p className="text-base font-semibold text-stone-900">
-                Pulsa en "Solicitar alta" para completar los datos de empresa.
+                Pulsa en &quot;Solicitar alta&quot; para completar los datos de empresa.
               </p>
 
             </div>

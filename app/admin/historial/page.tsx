@@ -1,6 +1,6 @@
 import {requireAdmin} from "@/lib/auth";
 import {formatearFecha} from "@/lib/fechas";
-import {prisma} from "@/lib/prisma";
+import {obtenerHistorialMenusCacheado} from "@/lib/consultas-cache";
 import type {Prisma} from "@/generated/prisma/client";
 
 export default async function HistorialPage() {
@@ -14,22 +14,7 @@ export default async function HistorialPage() {
                 };
             };
         };
-    }>[] = await prisma.menu.findMany({
-        where: {
-            idNegocio: sesion.idNegocio,
-        },
-        orderBy: {
-            fecha: "desc",
-        },
-        include: {
-            persona: true,
-            menu_plato: {
-                include: {
-                    plato: true,
-                },
-            },
-        },
-    });
+    }>[] = await obtenerHistorialMenusCacheado(sesion.idNegocio);
 
     return (
         <section className="glass-card p-6">

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireApiSession } from "@/lib/api";
+import {jsonError, requireApiSession} from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
@@ -25,20 +25,6 @@ export async function PUT(request: Request) {
     return error;
   }
 
-  const body = await request.json();
-
-  const negocio = await prisma.negocio.update({
-    where: {
-      idNegocio: sesion.idNegocio,
-    },
-    data: {
-      nombre: body.nombre,
-      direccion: body.direccion,
-      telefono: body.telefono || null,
-      CIF_NIF: body.CIF_NIF,
-      estado: body.estado || "activo",
-    },
-  });
-
-  return NextResponse.json({ ok: true, item: negocio });
+    await request.json().catch(() => null);
+    return jsonError("Los datos fiscales del negocio no se pueden modificar desde la aplicacion.", 403);
 }

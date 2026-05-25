@@ -10,10 +10,26 @@ export const runtime = "nodejs";
 
 const MAX_DOCUMENT_SIZE = 5 * 1024 * 1024;
 const ALLOWED_DOCUMENT_TYPES = ["application/pdf", "image/jpeg", "image/png"];
+const ALLOWED_NUMERO_LOCALES = ["1", "2", "3", "4+"];
 
 function getRequiredString(formData: FormData, field: string) {
   const value = String(formData.get(field) || "").trim();
   return value;
+}
+
+function esEmailValido(email: string)
+{
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function esCifNifValido(valor: string)
+{
+    return /^[a-zA-Z0-9]{8,15}$/.test(valor.replace(/[\s-]/g, ""));
+}
+
+function esTelefonoValido(valor: string)
+{
+    return /^\+?\d{9,15}$/.test(valor.replace(/\s/g, ""));
 }
 
 function sanitizeFileName(fileName: string) {
@@ -72,6 +88,26 @@ export async function POST(request: Request) {
     if (adminPin.length < 4 || adminPin.length > 20) {
       return jsonError("El PIN debe tener entre 4 y 20 caracteres.");
     }
+
+      if (!esEmailValido(email))
+      {
+          return jsonError("El correo electronico no es valido.");
+      }
+
+      if (!esCifNifValido(cifNif))
+      {
+          return jsonError("El CIF/NIF no es valido.");
+      }
+
+      if (!esTelefonoValido(telefono))
+      {
+          return jsonError("El telefono no es valido.");
+      }
+
+      if (!ALLOWED_NUMERO_LOCALES.includes(numeroLocales))
+      {
+          return jsonError("El numero de locales no es valido.");
+      }
 
     if (!(documento instanceof File)) {
       return jsonError("Debes adjuntar el documento de titularidad.");

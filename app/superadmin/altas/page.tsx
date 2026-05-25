@@ -1,15 +1,11 @@
 import SolicitudesAltaManager from "@/components/admin/SolicitudesAltaManager";
 import {requireSuperAdmin} from "@/lib/auth";
-import {prisma} from "@/lib/prisma";
+import {obtenerSolicitudesAltaCacheadas} from "@/lib/consultas-cache";
 
 export default async function SuperAdminAltasPage() {
   await requireSuperAdmin();
 
-  const solicitudes = await prisma.solicitud_alta.findMany({
-    orderBy: {
-      fechaSolicitud: "desc",
-    },
-  });
+    const solicitudes = await obtenerSolicitudesAltaCacheadas();
 
   return (
     <SolicitudesAltaManager

@@ -4,8 +4,6 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  ClipboardPen,
-  MonitorSmartphone,
   ReceiptText,
   Soup,
   UtensilsCrossed,
@@ -242,10 +240,6 @@ export default function EditarComandaForm({
 
     router.push("/camarero/comandas");
     router.refresh();
-
-    if (typeof window !== "undefined") {
-      window.location.href = "/camarero/comandas";
-    }
   }
 
   return (

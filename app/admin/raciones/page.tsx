@@ -1,18 +1,12 @@
 import PlatosManager from "@/components/admin/PlatosManager";
 import {requireAdmin} from "@/lib/auth";
-import {prisma} from "@/lib/prisma";
+import {obtenerPlatosPorTipoCacheados} from "@/lib/consultas-cache";
+import type {Prisma} from "@/generated/prisma/client";
 
 export default async function RacionesPage() {
   await requireAdmin();
 
-  const raciones = await prisma.plato.findMany({
-    where: {
-      tipoPlato: "racion",
-    },
-    orderBy: {
-      nombre: "asc",
-    },
-  });
+    const raciones = await obtenerPlatosPorTipoCacheados("racion");
 
   return (
     <PlatosManager
@@ -22,7 +16,7 @@ export default async function RacionesPage() {
       platos={raciones.map((plato: {
           idPlato: number;
           nombre: string;
-          precioIndividual: any;
+          precioIndividual: Prisma.Decimal | number | null;
           ingredientes: string | null;
           alergenos: string | null
       }) => ({

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import {revalidateTag} from "next/cache";
 import { jsonError, requireApiSession } from "@/lib/api";
+import {cacheTags} from "@/lib/cache-tags";
 import { prisma } from "@/lib/prisma";
 
 type Params = {
@@ -10,6 +12,23 @@ type LineaEntrada = {
   idPlato: number;
   cantidad: number;
 };
+
+function esObjeto(valor: unknown): valor is Record<string, unknown>
+{
+    return Boolean(valor && typeof valor === "object" && !Array.isArray(valor));
+}
+
+async function leerBody(request: Request)
+{
+    const body = await request.json().catch(() => null);
+    return esObjeto(body) ? body : null;
+}
+
+function enteroPositivo(valor: unknown)
+{
+    const numero = Number(valor);
+    return Number.isInteger(numero) && numero > 0 ? numero : null;
+}
 
 function normalizarLineas(entrada: unknown): LineaEntrada[] {
   if (!Array.isArray(entrada)) {
@@ -85,7 +104,21 @@ export async function PUT(request: Request, { params }: Params) {
 
   const { id } = await params;
   const idComanda = Number(id);
-  const body = await request.json();
+
+    if (!Number.isInteger(idComanda) || idComanda <= 0)
+    {
+        return jsonError("Comanda no valida.", 400);
+    }
+
+    const body = await leerBody(request);
+
+    if (!body)
+    {
+        return jsonError("Datos de comanda no validos.");
+    }
+
+    const numMesa = enteroPositivo(body.numMesa);
+    const numComensales = enteroPositivo(body.numComensales);
   const lineas = normalizarLineas(body.lineas);
 
   const comanda = await obtenerComanda(idComanda, sesion.idNegocio);
@@ -94,7 +127,8 @@ export async function PUT(request: Request, { params }: Params) {
     return jsonError("Comanda no encontrada.", 404);
   }
 
-  if (!body.numMesa || !body.numComensales || lineas.length === 0) {
+    if (!numMesa || !numComensales || lineas.length === 0)
+    {
     return jsonError("Mesa, comensales y platos son obligatorios.");
   }
 
@@ -110,8 +144,8 @@ export async function PUT(request: Request, { params }: Params) {
         idComanda,
       },
       data: {
-        numMesa: Number(body.numMesa),
-        numComensales: Number(body.numComensales),
+          numMesa,
+          numComensales,
         empresa: Boolean(body.empresa),
         estado: body.estado === "cerrada" ? "cerrada" : "abierta",
       },
@@ -137,6 +171,7 @@ export async function PUT(request: Request, { params }: Params) {
     sesion.idNegocio
   );
 
+    revalidateTag(cacheTags.comandas(sesion.idNegocio), "max");
   return NextResponse.json({ ok: true, item: comandaActualizada });
 }
 
@@ -149,7 +184,19 @@ export async function PATCH(request: Request, { params }: Params) {
 
   const { id } = await params;
   const idComanda = Number(id);
-  const body = await request.json();
+
+    if (!Number.isInteger(idComanda) || idComanda <= 0)
+    {
+        return jsonError("Comanda no valida.", 400);
+    }
+
+    const body = await leerBody(request);
+
+    if (!body)
+    {
+        return jsonError("Datos de comanda no validos.");
+    }
+
   const lineas = normalizarLineas(body.lineas);
 
   const comanda = await obtenerComanda(idComanda, sesion.idNegocio);
@@ -204,5 +251,6 @@ export async function PATCH(request: Request, { params }: Params) {
     sesion.idNegocio
   );
 
+    revalidateTag(cacheTags.comandas(sesion.idNegocio), "max");
   return NextResponse.json({ ok: true, item: comandaActualizada });
 }

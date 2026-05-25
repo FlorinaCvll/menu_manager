@@ -2,6 +2,11 @@ import {notFound} from "next/navigation";
 import EditarComandaForm from "@/components/camarero/EditarComandaForm";
 import {requireCamareroOAdmin} from "@/lib/auth";
 import {obtenerFechaSolo} from "@/lib/fechas";
+import {
+    obtenerComandaCacheada,
+    obtenerMenuDiaCacheado,
+    obtenerPlatosPorTipoCacheados,
+} from "@/lib/consultas-cache";
 import {prisma} from "@/lib/prisma";
 
 type Params = {
@@ -53,33 +58,10 @@ export default async function EditarComandaPage({ params }: Params) {
   const fechaMenu = obtenerFechaSolo();
 
   const [comanda, menuHoy, racionesBase, postresBase] = await Promise.all([
-    prisma.comanda.findFirst({
-      where: {
-        idComanda,
-        idNegocio: sesion.idNegocio,
-      },
-    }),
-    prisma.menu.findFirst({
-      where: {
-        idNegocio: sesion.idNegocio,
-        fecha: fechaMenu,
-      },
-      include: {
-        menu_plato: {
-          include: {
-            plato: true,
-          },
-        },
-      },
-    }),
-    prisma.plato.findMany({
-      where: { tipoPlato: "racion" },
-      orderBy: { nombre: "asc" },
-    }),
-    prisma.plato.findMany({
-      where: { tipoPlato: "postre" },
-      orderBy: { nombre: "asc" },
-    }),
+      obtenerComandaCacheada(sesion.idNegocio, idComanda),
+      obtenerMenuDiaCacheado(sesion.idNegocio, fechaMenu),
+      obtenerPlatosPorTipoCacheados("racion"),
+      obtenerPlatosPorTipoCacheados("postre"),
   ]);
 
   if (!comanda) {

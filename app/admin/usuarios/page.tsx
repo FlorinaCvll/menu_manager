@@ -1,22 +1,14 @@
 import UsuariosManager from "@/components/admin/UsuariosManager";
 import {requireAdmin} from "@/lib/auth";
-import {prisma} from "@/lib/prisma";
+import {obtenerUsuariosCacheados} from "@/lib/consultas-cache";
 
 export default async function UsuariosPage() {
   const sesion = await requireAdmin();
-  const usuarios = await prisma.persona.findMany({
-    where: {
-      idNegocio: sesion.idNegocio,
-      fechaBaja: null,
-      rol: {
-        in: ["admin", "camarero"],
-      },
-    },
-    orderBy: [{ fechaBaja: "asc" }, { nombre: "asc" }],
-  });
+    const usuarios = await obtenerUsuariosCacheados(sesion.idNegocio);
 
   return (
     <UsuariosManager
+        currentUserId={sesion.idPersona}
         usuarios={usuarios.map(
             (usuario: {
                 idPersona: number;

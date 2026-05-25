@@ -1,4 +1,6 @@
-import Link from "next/link";
+"use client";
+
+import {useState} from "react";
 import {
   ArrowRight,
   BadgeCheck,
@@ -34,6 +36,20 @@ const bloques = [
 ];
 
 export default function Home() {
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+
+  function abrirFormulario()
+  {
+    setMostrarFormulario(true);
+    requestAnimationFrame(() =>
+    {
+      document.getElementById("compra")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }
+
   return (
     <main className="pb-14">
       <section className="mx-auto max-w-7xl px-4 pb-8 pt-6 sm:px-6 lg:px-8">
@@ -50,14 +66,14 @@ export default function Home() {
               </div>
 
               <div className="flex flex-wrap gap-3">
-                <a href="#compra" className="primary-button">
+                <button type="button" onClick={abrirFormulario} className="primary-button">
                   Solicitar alta
                   <ShoppingCart className="h-4 w-4" />
-                </a>
-                <Link href="/login" className="secondary-button">
+                </button>
+                <button type="button" onClick={abrirFormulario} className="secondary-button">
                   Acceder
                   <ArrowRight className="h-4 w-4" />
-                </Link>
+                </button>
               </div>
             </div>
 
@@ -106,7 +122,10 @@ export default function Home() {
       </section>
 
 
-      <FormularioCompraEmpresa />
+      <FormularioCompraEmpresa
+          mostrarFormulario={mostrarFormulario}
+          onMostrarFormulario={() => setMostrarFormulario(true)}
+      />
     </main>
   );
 }

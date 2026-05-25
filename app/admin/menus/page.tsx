@@ -1,27 +1,13 @@
 import MenuManager from "@/components/admin/MenuManager";
 import {requireAdmin} from "@/lib/auth";
 import {fechaAInput, obtenerFechaSolo} from "@/lib/fechas";
-import {prisma} from "@/lib/prisma";
+import {obtenerMenuDiaCacheado} from "@/lib/consultas-cache";
 
 export default async function MenusPage() {
   const sesion = await requireAdmin();
   const fechaMenu = obtenerFechaSolo();
 
-  const menuHoy = await prisma.menu.findUnique({
-    where: {
-      idNegocio_fecha: {
-        idNegocio: sesion.idNegocio,
-        fecha: fechaMenu,
-      },
-    },
-    include: {
-      menu_plato: {
-        include: {
-          plato: true,
-        },
-      },
-    },
-  });
+    const menuHoy = await obtenerMenuDiaCacheado(sesion.idNegocio, fechaMenu);
 
   const menuHoyAgrupado = menuHoy
     ? {

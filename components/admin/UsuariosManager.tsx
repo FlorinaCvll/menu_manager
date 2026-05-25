@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { useRouter } from "next/navigation";
 import { Pencil, Trash2, UserPlus } from "lucide-react";
 import { refrescarVista } from "@/lib/refrescar-vista";
@@ -37,13 +37,24 @@ const initialForm: FormState = {
   activo: true,
 };
 
-export default function UsuariosManager({ usuarios }: { usuarios: Usuario[] }) {
+type Props = {
+    usuarios: Usuario[];
+    currentUserId: number;
+};
+
+export default function UsuariosManager({usuarios, currentUserId}: Props)
+{
   const router = useRouter();
   const [usuariosVisibles, setUsuariosVisibles] = useState(usuarios);
   const [form, setForm] = useState<FormState>(initialForm);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+    useEffect(() =>
+    {
+        setUsuariosVisibles(usuarios);
+    }, [usuarios]);
 
   async function handleSubmit(event: React.SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -91,6 +102,12 @@ export default function UsuariosManager({ usuarios }: { usuarios: Usuario[] }) {
   }
 
   async function handleDelete(idPersona: number) {
+      if (idPersona === currentUserId)
+      {
+          setError("No puedes darte de baja a ti mismo.");
+          return;
+      }
+
     const confirmar = window.confirm(
       "Se dará de baja este usuario. ¿Quieres continuar?"
     );
@@ -291,14 +308,24 @@ export default function UsuariosManager({ usuarios }: { usuarios: Usuario[] }) {
                     <Pencil className="h-4 w-4" />
                     Editar
                   </button>
-                  <button
-                    type="button"
-                    className="secondary-button px-4 py-3 text-sm text-red-100"
-                    onClick={() => handleDelete(usuario.idPersona)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Baja
-                  </button>
+                    {usuario.idPersona === currentUserId ? (
+                        <button
+                            type="button"
+                            className="secondary-button px-4 py-3 text-sm opacity-60"
+                            disabled
+                        >
+                            Tu usuario
+                        </button>
+                    ) : (
+                        <button
+                            type="button"
+                            className="secondary-button px-4 py-3 text-sm text-red-100"
+                            onClick={() => handleDelete(usuario.idPersona)}
+                        >
+                            <Trash2 className="h-4 w-4"/>
+                            Baja
+                        </button>
+                    )}
                 </div>
               </div>
             </article>

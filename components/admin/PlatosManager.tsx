@@ -127,9 +127,19 @@ export default function PlatosManager({
       return;
     }
 
-    await fetch(`${endpoint}/${idPlato}`, {
+      setError("");
+
+      const response = await fetch(`${endpoint}/${idPlato}`, {
       method: "DELETE",
     });
+
+      const data = await response.json();
+
+      if (!response.ok)
+      {
+          setError(data.error || "No se ha podido eliminar el plato.");
+          return;
+      }
 
     refrescarVista(router);
   }

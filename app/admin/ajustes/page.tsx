@@ -1,14 +1,10 @@
 import NegocioForm from "@/components/admin/NegocioForm";
 import { requireAdmin } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import {obtenerNegocioCacheado} from "@/lib/consultas-cache";
 
 export default async function AjustesPage() {
   const sesion = await requireAdmin();
-  const negocio = await prisma.negocio.findUniqueOrThrow({
-    where: {
-      idNegocio: sesion.idNegocio,
-    },
-  });
+    const negocio = await obtenerNegocioCacheado(sesion.idNegocio);
 
   return (
     <NegocioForm

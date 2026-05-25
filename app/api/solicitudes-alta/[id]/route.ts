@@ -1,6 +1,19 @@
 import { NextResponse } from "next/server";
+import {revalidateTag} from "next/cache";
 import { jsonError, requireApiSession } from "@/lib/api";
+import {cacheTags} from "@/lib/cache-tags";
 import { prisma } from "@/lib/prisma";
+
+function esObjeto(valor: unknown): valor is Record<string, unknown>
+{
+    return Boolean(valor && typeof valor === "object" && !Array.isArray(valor));
+}
+
+async function leerBody(request: Request)
+{
+    const body = await request.json().catch(() => null);
+    return esObjeto(body) ? body : null;
+}
 
 export async function POST(
   request: Request,
@@ -14,12 +27,20 @@ export async function POST(
 
   const { id } = await context.params;
   const idSolicitudAlta = Number(id);
-  const body = await request.json();
-  const accion = String(body.accion || "");
 
-  if (!idSolicitudAlta) {
-    return jsonError("Solicitud no valida.");
-  }
+    if (!Number.isInteger(idSolicitudAlta) || idSolicitudAlta <= 0)
+    {
+        return jsonError("Solicitud no valida.", 400);
+    }
+
+    const body = await leerBody(request);
+
+    if (!body)
+    {
+        return jsonError("Datos de solicitud no validos.");
+    }
+
+  const accion = String(body.accion || "");
 
   const solicitud = await prisma.solicitud_alta.findUnique({
     where: {
@@ -43,6 +64,7 @@ export async function POST(
       },
     });
 
+      revalidateTag(cacheTags.solicitudesAlta, "max");
     return NextResponse.json({ ok: true, item: actualizada });
   }
 
@@ -104,5 +126,6 @@ export async function POST(
     };
   });
 
+    revalidateTag(cacheTags.solicitudesAlta, "max");
   return NextResponse.json({ ok: true, ...resultado });
 }

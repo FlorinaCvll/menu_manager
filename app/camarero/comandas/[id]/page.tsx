@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import BotonImprimir from "@/components/shared/BotonImprimir";
 import { requireCamareroOAdmin } from "@/lib/auth";
 import { formatearFechaHora } from "@/lib/fechas";
+import {obtenerComandaCacheada} from "@/lib/consultas-cache";
 import { prisma } from "@/lib/prisma";
 
 type Params = {
@@ -25,12 +26,7 @@ export default async function ComandaCocinaPage({ params }: Params) {
     notFound();
   }
 
-  const comanda = await prisma.comanda.findFirst({
-    where: {
-      idComanda,
-      idNegocio: sesion.idNegocio,
-    },
-  });
+    const comanda = await obtenerComandaCacheada(sesion.idNegocio, idComanda);
 
   if (!comanda) {
     notFound();
@@ -101,53 +97,48 @@ export default async function ComandaCocinaPage({ params }: Params) {
             : "ticket-cocina-pequena max-w-[92mm]"
         }`}
       >
-        <header className="text-center">
-          <p className="text-[11px] uppercase tracking-[0.35em] text-slate-700">
-            Cocina
-          </p>
-          <p className="mt-2 text-sm text-slate-700">
-            {formatearFechaHora(comanda.fecha)}
-          </p>
-          <div className="ticket-mesa mt-4">
-            <p className="ticket-mesa-label">Mesa</p>
-            <p className="ticket-mesa-numero">{comanda.numMesa}</p>
-          </div>
-          <p className="mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-slate-700">
-            {comanda.numComensales} comensales
-          </p>
-        </header>
+          <header>
+              <div className="flex items-start justify-between gap-4">
+                  <div>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-slate-500">
+                          Comanda
+                      </p>
+                      <h1 className="mt-2 text-3xl font-black tracking-normal text-slate-950">
+                          Cocina
+                      </h1>
+                  </div>
+                  <div className="text-right">
+                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
+                          #{comanda.idComanda}
+                      </p>
+                      <p className="mt-2 text-sm font-semibold text-slate-700">
+                          {formatearFechaHora(comanda.fecha)}
+                      </p>
+                  </div>
+              </div>
 
-        <div className="ticket-linea mt-4" />
+              <div className="ticket-meta-grid mt-5">
+                  <div className="ticket-meta-card">
+                      <p className="ticket-meta-label">Mesa</p>
+                      <p className="ticket-meta-value">{comanda.numMesa}</p>
+                  </div>
+                  <div className="ticket-meta-card">
+                      <p className="ticket-meta-label">Comensales</p>
+                      <p className="ticket-meta-value">{comanda.numComensales}</p>
+                  </div>
+                  <div className="ticket-meta-card">
+                      <p className="ticket-meta-label">Tipo</p>
+                      <p className="ticket-meta-value text-xl">
+                          {comanda.empresa ? "Empresa" : "Normal"}
+                      </p>
+                  </div>
+              </div>
+          </header>
 
-        <section className="mt-4 space-y-3 text-slate-900">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl border border-slate-300 px-3 py-3 text-center">
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-600">
-                Comensales
-              </p>
-              <p className="mt-1 text-2xl font-extrabold text-slate-950">
-                {comanda.numComensales}
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-2 text-sm">
-            <p>
-              <strong>Tipo:</strong> {comanda.empresa ? "Empresa" : "Normal"}
-            </p>
-            <p>
-              <strong>Comanda:</strong> #{comanda.idComanda}
-            </p>
-            <p>
-              <strong>Lineas:</strong> {totalLineas}
-            </p>
-          </div>
-        </section>
-
-        <div className="ticket-linea mt-4" />
+          <div className="ticket-linea mt-5"/>
 
         <div
-          className={`mt-4 space-y-4 ${
+            className={`mt-5 space-y-4 ${
             esComandaGrande ? "ticket-grupos-grande md:grid md:grid-cols-2 md:gap-5 md:space-y-0" : ""
           }`}
         >
@@ -159,17 +150,17 @@ export default async function ComandaCocinaPage({ params }: Params) {
           ] as const).map(([titulo, items]) =>
             items.length > 0 ? (
               <section key={titulo} className="break-inside-avoid">
-                <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-800">
+                  <h2 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
                   {titulo}
                 </h2>
-                <div className="mt-2 space-y-2">
+                  <div className="mt-3 space-y-2">
                   {items.map((item) => (
                     <div
                       key={item.idPlato}
-                      className="flex items-start justify-between gap-3 text-base text-slate-950"
+                      className="ticket-item flex items-start gap-3 text-base text-slate-950"
                     >
-                      <span className="font-bold">{item.cantidad}x</span>
-                      <span className="flex-1 leading-6">{item.nombre}</span>
+                        <span className="ticket-item-quantity">{item.cantidad}x</span>
+                        <span className="flex-1 leading-6 font-semibold">{item.nombre}</span>
                     </div>
                   ))}
                 </div>
@@ -180,8 +171,11 @@ export default async function ComandaCocinaPage({ params }: Params) {
 
         <div className="ticket-linea mt-5" />
 
-        <footer className="mt-4 text-center text-xs uppercase tracking-[0.16em] text-slate-600">
-          MenuManager
+          <footer
+              className="mt-4 flex items-center justify-between gap-4 text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
+              <span>{totalLineas} lineas</span>
+              <span>{totalUnidades} unidades</span>
+              <span>MenuManager</span>
         </footer>
       </article>
     </section>

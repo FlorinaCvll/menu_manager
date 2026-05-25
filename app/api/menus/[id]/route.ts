@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { requireApiSession } from "@/lib/api";
+import {revalidateTag} from "next/cache";
+import {jsonError, requireApiSession} from "@/lib/api";
+import {cacheTags} from "@/lib/cache-tags";
 import { prisma } from "@/lib/prisma";
 
 type Params = {
@@ -15,6 +17,12 @@ export async function GET(_: Request, { params }: Params) {
 
   const { id } = await params;
   const menuId = Number(id);
+
+    if (!Number.isInteger(menuId) || menuId <= 0)
+    {
+        return jsonError("Menú no válido.", 400);
+    }
+
   const menu = await prisma.menu.findFirst({
     where: {
       idMenu: menuId,
@@ -41,6 +49,12 @@ export async function DELETE(_: Request, { params }: Params) {
 
   const { id } = await params;
   const menuId = Number(id);
+
+    if (!Number.isInteger(menuId) || menuId <= 0)
+    {
+        return jsonError("Menú no válido.", 400);
+    }
+
   const menu = await prisma.menu.findFirst({
     where: {
       idMenu: menuId,
@@ -61,5 +75,8 @@ export async function DELETE(_: Request, { params }: Params) {
     },
   });
 
+    revalidateTag(cacheTags.menus(sesion.idNegocio), "max");
+    revalidateTag(cacheTags.menuDia(sesion.idNegocio, menu.fecha), "max");
+    revalidateTag(cacheTags.comandas(sesion.idNegocio), "max");
   return NextResponse.json({ ok: true });
 }

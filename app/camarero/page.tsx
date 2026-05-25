@@ -1,5 +1,4 @@
 import Link from "next/link";
-import {ClipboardList, UtensilsCrossed,} from "lucide-react";
 import {requireCamareroOAdmin} from "@/lib/auth";
 import {inicioDelDia, obtenerFechaSolo} from "@/lib/fechas";
 import {prisma} from "@/lib/prisma";
@@ -56,6 +55,9 @@ export default async function CamareroPage() {
                         {menuHoy
                             ? "El menú del día ya está disponible para los clientes."
                         : "Cuando el administrador guarde el menú, aparecerá aquí automáticamente."}
+                    </p>
+                    <p className="mt-3 text-sm text-emerald-50/90">
+                        Comandas abiertas hoy: {comandasHoy}
                     </p>
                 </article>
             </section>

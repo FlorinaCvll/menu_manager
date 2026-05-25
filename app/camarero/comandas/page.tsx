@@ -1,6 +1,11 @@
 import ComandasManager from "@/components/camarero/ComandasManager";
 import {requireCamareroOAdmin} from "@/lib/auth";
 import {formatearFechaHora, inicioDelDia, obtenerFechaSolo} from "@/lib/fechas";
+import {
+    obtenerComandasDiaCacheadas,
+    obtenerMenuDiaCacheado,
+    obtenerPlatosPorTipoCacheados,
+} from "@/lib/consultas-cache";
 import {prisma} from "@/lib/prisma";
 
 type FilaPlatoComanda = {
@@ -17,38 +22,10 @@ export default async function ComandasPage() {
   const hoy = inicioDelDia();
 
   const [menuHoy, raciones, postres, comandasBase] = await Promise.all([
-    prisma.menu.findFirst({
-      where: {
-        idNegocio: sesion.idNegocio,
-        fecha: fechaMenu,
-      },
-      include: {
-        menu_plato: {
-          include: {
-            plato: true,
-          },
-        },
-      },
-    }),
-    prisma.plato.findMany({
-      where: { tipoPlato: "racion" },
-      orderBy: { nombre: "asc" },
-    }),
-    prisma.plato.findMany({
-      where: { tipoPlato: "postre" },
-      orderBy: { nombre: "asc" },
-    }),
-    prisma.comanda.findMany({
-      where: {
-        idNegocio: sesion.idNegocio,
-        fecha: {
-          gte: hoy,
-        },
-      },
-      orderBy: {
-        fecha: "desc",
-      },
-    }),
+      obtenerMenuDiaCacheado(sesion.idNegocio, fechaMenu),
+      obtenerPlatosPorTipoCacheados("racion"),
+      obtenerPlatosPorTipoCacheados("postre"),
+      obtenerComandasDiaCacheadas(sesion.idNegocio, hoy),
   ]);
 
   const idsComanda = comandasBase.map((comanda: { idComanda: number }) => comanda.idComanda);

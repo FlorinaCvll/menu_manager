@@ -14,7 +14,7 @@ export default function Marca({
     <Link href={href} className="inline-flex items-center gap-3">
       <span className="glass-card-strong flex h-11 w-11 items-center justify-center rounded-[0.9rem] border border-white/10">
         <Image
-          src="/colibri.svg"
+            src="/colibri.jpg"
           alt="Icono de MenuManager"
           width={28}
           height={28}

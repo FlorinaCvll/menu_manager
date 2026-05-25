@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { MonitorSmartphone, Smartphone } from "lucide-react";
+import {MonitorSmartphone} from "lucide-react";
 import type { UsuarioSesion } from "@/types/session";
 
 type CamareroSoloMovilProps = {

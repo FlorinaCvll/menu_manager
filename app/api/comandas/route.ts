@@ -1,11 +1,30 @@
 import { NextResponse } from "next/server";
+import {revalidateTag} from "next/cache";
 import { jsonError, requireApiSession } from "@/lib/api";
+import {cacheTags} from "@/lib/cache-tags";
 import { prisma } from "@/lib/prisma";
 
 type LineaEntrada = {
   idPlato: number;
   cantidad: number;
 };
+
+function esObjeto(valor: unknown): valor is Record<string, unknown>
+{
+    return Boolean(valor && typeof valor === "object" && !Array.isArray(valor));
+}
+
+async function leerBody(request: Request)
+{
+    const body = await request.json().catch(() => null);
+    return esObjeto(body) ? body : null;
+}
+
+function enteroPositivo(valor: unknown)
+{
+    const numero = Number(valor);
+    return Number.isInteger(numero) && numero > 0 ? numero : null;
+}
 
 function normalizarLineas(entrada: unknown): LineaEntrada[] {
   if (!Array.isArray(entrada)) {
@@ -68,10 +87,19 @@ export async function POST(request: Request) {
     return error;
   }
 
-  const body = await request.json();
+    const body = await leerBody(request);
+
+    if (!body)
+    {
+        return jsonError("Datos de comanda no validos.");
+    }
+
+    const numMesa = enteroPositivo(body.numMesa);
+    const numComensales = enteroPositivo(body.numComensales);
   const lineas = normalizarLineas(body.lineas);
 
-  if (!body.numMesa || !body.numComensales || lineas.length === 0) {
+    if (!numMesa || !numComensales || lineas.length === 0)
+    {
     return jsonError("Mesa, comensales y platos son obligatorios.");
   }
 
@@ -91,8 +119,8 @@ export async function POST(request: Request) {
     const creada = await tx.comanda.create({
       data: {
         fecha: new Date(),
-        numMesa: Number(body.numMesa),
-        numComensales: Number(body.numComensales),
+          numMesa,
+          numComensales,
         empresa: Boolean(body.empresa),
         idPersona: sesion.idPersona,
         idNegocio: sesion.idNegocio,
@@ -111,5 +139,6 @@ export async function POST(request: Request) {
     return creada;
   });
 
+    revalidateTag(cacheTags.comandas(sesion.idNegocio), "max");
   return NextResponse.json({ ok: true, item: comanda });
 }
