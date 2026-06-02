@@ -28,7 +28,7 @@ export default async function MenuDiaPage() {
     totalPlatos >= 11 || observaciones.length > 120 || Boolean(hayNombreLargo);
 
   return (
-    <section className="space-y-5">
+      <section className="print-menu-page space-y-5">
       <div className="glass-card no-print p-5 sm:p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -118,7 +118,7 @@ export default async function MenuDiaPage() {
             ))}
           </section>
 
-          <footer className="print-section mt-7">
+            <footer className="no-print print-section mt-7">
             <div className="menu-paper-line" />
             <div className="mt-4  border border-emerald-900/10 bg-emerald-50/65 px-4 py-4 text-center">
               <p className="text-[11px] uppercase tracking-[0.24em] text-emerald-900/55">

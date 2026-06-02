@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import {notFound} from "next/navigation";
 import BotonImprimir from "@/components/shared/BotonImprimir";
-import { requireCamareroOAdmin } from "@/lib/auth";
-import { formatearFechaHora } from "@/lib/fechas";
+import {requireCamareroOAdmin} from "@/lib/auth";
+import {formatearFechaHora} from "@/lib/fechas";
 import {obtenerComandaCacheada} from "@/lib/consultas-cache";
-import { prisma } from "@/lib/prisma";
+import {prisma} from "@/lib/prisma";
 
 type Params = {
   params: Promise<{ id: string }>;
@@ -91,7 +91,7 @@ export default async function ComandaCocinaPage({ params }: Params) {
       </div>
 
       <article
-        className={`ticket-cocina mx-auto w-full rounded-[1.5rem] p-5 ${
+          className={`ticket-cocina mx-auto w-full p-5 ${
           esComandaGrande
             ? "ticket-cocina-grande max-w-4xl"
             : "ticket-cocina-pequena max-w-[92mm]"
@@ -100,42 +100,23 @@ export default async function ComandaCocinaPage({ params }: Params) {
           <header>
               <div className="flex items-start justify-between gap-4">
                   <div>
-                      <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-slate-500">
-                          Comanda
-                      </p>
-                      <h1 className="mt-2 text-3xl font-black tracking-normal text-slate-950">
-                          Cocina
+                      <h1 className="text-2xl font-bold text-slate-950">
+                          Cocina #{comanda.idComanda}
                       </h1>
                   </div>
                   <div className="text-right">
-                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
-                          #{comanda.idComanda}
-                      </p>
-                      <p className="mt-2 text-sm font-semibold text-slate-700">
+                      <p className="text-sm text-slate-700">
                           {formatearFechaHora(comanda.fecha)}
                       </p>
                   </div>
               </div>
 
-              <div className="ticket-meta-grid mt-5">
-                  <div className="ticket-meta-card">
-                      <p className="ticket-meta-label">Mesa</p>
-                      <p className="ticket-meta-value">{comanda.numMesa}</p>
-                  </div>
-                  <div className="ticket-meta-card">
-                      <p className="ticket-meta-label">Comensales</p>
-                      <p className="ticket-meta-value">{comanda.numComensales}</p>
-                  </div>
-                  <div className="ticket-meta-card">
-                      <p className="ticket-meta-label">Tipo</p>
-                      <p className="ticket-meta-value text-xl">
-                          {comanda.empresa ? "Empresa" : "Normal"}
-                      </p>
-                  </div>
+              <div className="ticket-meta-grid mt-4">
+                  <p>Mesa {comanda.numMesa}</p>
+                  <p>{comanda.numComensales} comensales</p>
+                  <p>{comanda.empresa ? "Empresa" : "Normal"}</p>
               </div>
           </header>
-
-          <div className="ticket-linea mt-5"/>
 
         <div
             className={`mt-5 space-y-4 ${
@@ -150,7 +131,7 @@ export default async function ComandaCocinaPage({ params }: Params) {
           ] as const).map(([titulo, items]) =>
             items.length > 0 ? (
               <section key={titulo} className="break-inside-avoid">
-                  <h2 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
+                  <h2 className="text-sm font-bold text-slate-900">
                   {titulo}
                 </h2>
                   <div className="mt-3 space-y-2">
@@ -160,7 +141,7 @@ export default async function ComandaCocinaPage({ params }: Params) {
                       className="ticket-item flex items-start gap-3 text-base text-slate-950"
                     >
                         <span className="ticket-item-quantity">{item.cantidad}x</span>
-                        <span className="flex-1 leading-6 font-semibold">{item.nombre}</span>
+                        <span className="flex-1 leading-6">{item.nombre}</span>
                     </div>
                   ))}
                 </div>
@@ -168,15 +149,6 @@ export default async function ComandaCocinaPage({ params }: Params) {
             ) : null
           )}
         </div>
-
-        <div className="ticket-linea mt-5" />
-
-          <footer
-              className="mt-4 flex items-center justify-between gap-4 text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
-              <span>{totalLineas} lineas</span>
-              <span>{totalUnidades} unidades</span>
-              <span>MenuManager</span>
-        </footer>
       </article>
     </section>
   );

@@ -2,6 +2,16 @@ import UsuariosManager from "@/components/admin/UsuariosManager";
 import {requireAdmin} from "@/lib/auth";
 import {obtenerUsuariosCacheados} from "@/lib/consultas-cache";
 
+function serializarFecha(fecha: Date | string | null | undefined)
+{
+    if (!fecha)
+    {
+        return null;
+    }
+
+    return fecha instanceof Date ? fecha.toISOString() : fecha;
+}
+
 export default async function UsuariosPage() {
   const sesion = await requireAdmin();
     const usuarios = await obtenerUsuariosCacheados(sesion.idNegocio);
@@ -17,8 +27,8 @@ export default async function UsuariosPage() {
                 telefono: string | null;
                 rol: string;
                 comentarios: string | null;
-                fechaAlta: Date | null;
-                fechaBaja: Date | null;
+                fechaAlta: Date | string | null;
+                fechaBaja: Date | string | null;
             }) => ({
                 idPersona: usuario.idPersona,
                 nombre: usuario.nombre,
@@ -26,8 +36,8 @@ export default async function UsuariosPage() {
                 telefono: usuario.telefono,
                 rol: usuario.rol as "admin" | "camarero",
                 comentarios: usuario.comentarios,
-                fechaAlta: usuario.fechaAlta?.toISOString() || null,
-                fechaBaja: usuario.fechaBaja?.toISOString() || null,
+                fechaAlta: serializarFecha(usuario.fechaAlta),
+                fechaBaja: serializarFecha(usuario.fechaBaja),
             })
         )}
     />

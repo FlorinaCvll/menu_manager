@@ -1,10 +1,8 @@
 "use client";
 
-import React, {useEffect, useState} from "react";
-import { useRouter } from "next/navigation";
-import { Pencil, Trash2, UserPlus } from "lucide-react";
-import { refrescarVista } from "@/lib/refrescar-vista";
-import { limpiarTelefono } from "@/lib/telefono";
+import React, {useEffect, useRef, useState} from "react";
+import {Pencil, Trash2, UserPlus} from "lucide-react";
+import {limpiarTelefono} from "@/lib/telefono";
 
 type Usuario = {
   idPersona: number;
@@ -42,14 +40,50 @@ type Props = {
     currentUserId: number;
 };
 
+type UsuarioApi = Omit<Usuario, "rol" | "fechaAlta" | "fechaBaja"> & {
+    rol: string;
+    fechaAlta?: Date | string | null;
+    fechaBaja?: Date | string | null;
+};
+
+function serializarFecha(fecha: Date | string | null | undefined)
+{
+    if (!fecha)
+    {
+        return null;
+    }
+
+    return fecha instanceof Date ? fecha.toISOString() : fecha;
+}
+
+function normalizarUsuario(usuario: UsuarioApi): Usuario
+{
+    return {
+        idPersona: usuario.idPersona,
+        nombre: usuario.nombre,
+        apellidos: usuario.apellidos,
+        telefono: usuario.telefono,
+        rol: usuario.rol === "admin" ? "admin" : "camarero",
+        comentarios: usuario.comentarios,
+        fechaAlta: serializarFecha(usuario.fechaAlta),
+        fechaBaja: serializarFecha(usuario.fechaBaja),
+    };
+}
+
+function ordenarUsuarios(usuarios: Usuario[])
+{
+    return [...usuarios].sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+}
+
 export default function UsuariosManager({usuarios, currentUserId}: Props)
 {
-  const router = useRouter();
   const [usuariosVisibles, setUsuariosVisibles] = useState(usuarios);
   const [form, setForm] = useState<FormState>(initialForm);
   const [editingId, setEditingId] = useState<number | null>(null);
+    const [deletingId, setDeletingId] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+    const bajaEnCursoRef = useRef(false);
 
     useEffect(() =>
     {
@@ -82,10 +116,23 @@ export default function UsuariosManager({usuarios, currentUserId}: Props)
       return;
     }
 
+      const usuarioGuardado = normalizarUsuario(data.item);
+      setUsuariosVisibles((current) =>
+      {
+          const sinUsuarioPrevio = current.filter(
+              (usuario) => usuario.idPersona !== usuarioGuardado.idPersona,
+          );
+
+          if (usuarioGuardado.fechaBaja)
+          {
+              return sinUsuarioPrevio;
+          }
+
+          return ordenarUsuarios([...sinUsuarioPrevio, usuarioGuardado]);
+      });
     setForm(initialForm);
     setEditingId(null);
     setLoading(false);
-    refrescarVista(router);
   }
 
   function handleEdit(usuario: Usuario) {
@@ -108,11 +155,21 @@ export default function UsuariosManager({usuarios, currentUserId}: Props)
           return;
       }
 
+      if (bajaEnCursoRef.current)
+      {
+          return;
+      }
+
+      bajaEnCursoRef.current = true;
+      setDeletingId(idPersona);
+
     const confirmar = window.confirm(
       "Se dará de baja este usuario. ¿Quieres continuar?"
     );
 
     if (!confirmar) {
+        bajaEnCursoRef.current = false;
+        setDeletingId(null);
       return;
     }
 
@@ -123,6 +180,8 @@ export default function UsuariosManager({usuarios, currentUserId}: Props)
 
     if (!response.ok) {
       setError(data.error || "No se ha podido dar de baja el usuario.");
+        bajaEnCursoRef.current = false;
+        setDeletingId(null);
       return;
     }
 
@@ -135,7 +194,8 @@ export default function UsuariosManager({usuarios, currentUserId}: Props)
       setForm(initialForm);
     }
 
-    refrescarVista(router);
+      bajaEnCursoRef.current = false;
+      setDeletingId(null);
   }
 
   return (
@@ -292,6 +352,9 @@ export default function UsuariosManager({usuarios, currentUserId}: Props)
                     </span>
                   </div>
                   <p className="mt-2 text-sm text-[var(--muted)]">
+                      ID de usuario: #{usuario.idPersona}
+                  </p>
+                    <p className="mt-1 text-sm text-[var(--muted)]">
                     Teléfono: {usuario.telefono || "No indicado"}
                   </p>
                   <p className="mt-1 text-sm text-[var(--muted)]">
@@ -320,10 +383,11 @@ export default function UsuariosManager({usuarios, currentUserId}: Props)
                         <button
                             type="button"
                             className="secondary-button px-4 py-3 text-sm text-red-100"
+                            disabled={deletingId !== null}
                             onClick={() => handleDelete(usuario.idPersona)}
                         >
                             <Trash2 className="h-4 w-4"/>
-                            Baja
+                            {deletingId === usuario.idPersona ? "Dando baja..." : "Baja"}
                         </button>
                     )}
                 </div>

@@ -1,10 +1,10 @@
 import bcrypt from "bcryptjs";
-import { mkdir, writeFile } from "fs/promises";
+import {mkdir, writeFile} from "fs/promises";
 import path from "path";
-import { NextResponse } from "next/server";
-import { jsonError, requireApiSession } from "@/lib/api";
-import { prisma } from "@/lib/prisma";
-import { createStripeCheckoutSession, shouldUseMockPayments } from "@/lib/stripe";
+import {NextResponse} from "next/server";
+import {jsonError, requireApiSession} from "@/lib/api";
+import {prisma} from "@/lib/prisma";
+import {createStripeCheckoutSession, shouldUseMockPayments} from "@/lib/stripe";
 
 export const runtime = "nodejs";
 
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
 
       if (!esEmailValido(email))
       {
-          return jsonError("El correo electronico no es valido.");
+        return jsonError("El correo electrónico no es válido.");
       }
 
       if (!esCifNifValido(cifNif))

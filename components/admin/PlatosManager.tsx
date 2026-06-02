@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Pencil, Trash2 } from "lucide-react";
-import type { plato_tipoPlato } from "@/generated/prisma/client";
-import { refrescarVista } from "@/lib/refrescar-vista";
+import {useEffect, useState} from "react";
+import {Pencil, Trash2} from "lucide-react";
+import type {plato_tipoPlato} from "@/generated/prisma/client";
 
 type Plato = {
   idPlato: number;
@@ -30,6 +28,26 @@ const emptyForm = {
   alergenos: "",
 };
 
+type PlatoApi = Omit<Plato, "precioIndividual"> & {
+    precioIndividual: number | string | null;
+};
+
+function normalizarPlato(plato: PlatoApi): Plato
+{
+    return {
+        idPlato: plato.idPlato,
+        nombre: plato.nombre,
+        precioIndividual: Number(plato.precioIndividual || 0),
+        ingredientes: plato.ingredientes,
+        alergenos: plato.alergenos,
+    };
+}
+
+function ordenarPlatos(platos: Plato[])
+{
+    return [...platos].sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+}
+
 export default function PlatosManager({
   titulo,
   descripcion,
@@ -38,11 +56,16 @@ export default function PlatosManager({
   platos,
   permitirCargaRapida = false,
 }: Props) {
-  const router = useRouter();
+    const [platosVisibles, setPlatosVisibles] = useState(platos);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [loteTexto, setLoteTexto] = useState("");
   const [error, setError] = useState("");
+
+    useEffect(() =>
+    {
+        setPlatosVisibles(platos);
+    }, [platos]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -69,9 +92,17 @@ export default function PlatosManager({
       return;
     }
 
+      const platoGuardado = normalizarPlato(data.item);
+      setPlatosVisibles((current) =>
+      {
+          const sinPlatoPrevio = current.filter(
+              (plato) => plato.idPlato !== platoGuardado.idPlato,
+          );
+
+          return ordenarPlatos([...sinPlatoPrevio, platoGuardado]);
+      });
     setEditingId(null);
     setForm(emptyForm);
-    refrescarVista(router);
   }
 
   async function handleBulkSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -106,8 +137,26 @@ export default function PlatosManager({
       return;
     }
 
+      if (Array.isArray(data.items))
+      {
+          const platosCreados = data.items.map(normalizarPlato);
+          setPlatosVisibles((current) => ordenarPlatos([...current, ...platosCreados]));
+      } else
+      {
+          setPlatosVisibles((current) =>
+              ordenarPlatos([
+                  ...current,
+                  ...lineas.map((nombre, index) => ({
+                      idPlato: -Date.now() - index,
+                      nombre,
+                      precioIndividual: 0,
+                      ingredientes: null,
+                      alergenos: null,
+                  })),
+              ]),
+          );
+      }
     setLoteTexto("");
-    refrescarVista(router);
   }
 
   function handleEdit(plato: Plato) {
@@ -141,7 +190,9 @@ export default function PlatosManager({
           return;
       }
 
-    refrescarVista(router);
+      setPlatosVisibles((current) =>
+          current.filter((plato) => plato.idPlato !== idPlato),
+      );
   }
 
   const placeholderCargaRapida =
@@ -258,7 +309,7 @@ export default function PlatosManager({
           Catálogo disponible
         </h2>
         <div className="mt-6 space-y-4">
-          {platos.map((plato) => (
+            {platosVisibles.map((plato) => (
             <article
               key={plato.idPlato}
               className=" border border-white/10 bg-white/6 p-5"

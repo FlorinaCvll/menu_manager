@@ -1,14 +1,8 @@
 "use client";
 
 import {useState} from "react";
-import {
-  ArrowRight,
-  BadgeCheck,
-  ConciergeBell,
-  LifeBuoy,
-  Monitor,
-  ShoppingCart,
-} from "lucide-react";
+import Link from "next/link";
+import {ArrowRight, BadgeCheck, ConciergeBell, LifeBuoy, Monitor, ShoppingCart,} from "lucide-react";
 import FormularioCompraEmpresa from "@/components/public/FormularioCompraEmpresa";
 import Marca from "@/components/shared/Marca";
 
@@ -70,10 +64,10 @@ export default function Home() {
                   Solicitar alta
                   <ShoppingCart className="h-4 w-4" />
                 </button>
-                <button type="button" onClick={abrirFormulario} className="secondary-button">
+                  <Link href="/login" className="secondary-button">
                   Acceder
                   <ArrowRight className="h-4 w-4" />
-                </button>
+                  </Link>
               </div>
             </div>
 
@@ -124,7 +118,6 @@ export default function Home() {
 
       <FormularioCompraEmpresa
           mostrarFormulario={mostrarFormulario}
-          onMostrarFormulario={() => setMostrarFormulario(true)}
       />
     </main>
   );

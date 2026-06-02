@@ -157,6 +157,6 @@ export function verifyStripeWebhookSignature(payload: string, signature: string)
   });
 
   if (!valid) {
-    throw new Error("Firma de Stripe no valida.");
+    throw new Error("Firma de Stripe no válida.");
   }
 }

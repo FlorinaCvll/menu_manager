@@ -2,6 +2,16 @@ import SolicitudesAltaManager from "@/components/admin/SolicitudesAltaManager";
 import {requireSuperAdmin} from "@/lib/auth";
 import {obtenerSolicitudesAltaCacheadas} from "@/lib/consultas-cache";
 
+function serializarFecha(fecha: Date | string | null | undefined)
+{
+    if (!fecha)
+    {
+        return null;
+    }
+
+    return fecha instanceof Date ? fecha.toISOString() : fecha;
+}
+
 export default async function SuperAdminAltasPage() {
   await requireSuperAdmin();
 
@@ -22,8 +32,8 @@ export default async function SuperAdminAltasPage() {
                 comentarios: string | null;
                 documentoPropiedadUrl: string;
                 estado: string;
-                fechaSolicitud: Date;
-                fechaPago: Date | null;
+                fechaSolicitud: Date | string;
+                fechaPago: Date | string | null;
                 idNegocioCreado: number | null;
                 idPersonaAdminCreada: number | null;
             }) => ({
@@ -38,8 +48,8 @@ export default async function SuperAdminAltasPage() {
                 comentarios: solicitud.comentarios,
                 documentoPropiedadUrl: solicitud.documentoPropiedadUrl,
                 estado: solicitud.estado,
-                fechaSolicitud: solicitud.fechaSolicitud.toISOString(),
-                fechaPago: solicitud.fechaPago?.toISOString() || null,
+                fechaSolicitud: serializarFecha(solicitud.fechaSolicitud) || "",
+                fechaPago: serializarFecha(solicitud.fechaPago),
                 idNegocioCreado: solicitud.idNegocioCreado,
                 idPersonaAdminCreada: solicitud.idPersonaAdminCreada,
             })

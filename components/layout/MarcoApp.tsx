@@ -1,6 +1,6 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
-import type { UsuarioSesion } from "@/types/session";
+import type {ReactNode} from "react";
+import type {UsuarioSesion} from "@/types/session";
 import BotonCerrarSesion from "@/components/layout/BotonCerrarSesion";
 import Marca from "@/components/shared/Marca";
 
@@ -56,7 +56,7 @@ function PanelLateral({
 }) {
   return (
     <aside
-      className={`glass-card-strong w-full p-5 lg:sticky lg:top-4 lg:min-h-[calc(100vh-2rem)] lg:w-[268px] ${className}`}
+        className={`glass-card-strong no-print w-full p-5 lg:sticky lg:top-4 lg:min-h-[calc(100vh-2rem)] lg:w-[268px] ${className}`}
     >
       {children}
     </aside>
@@ -81,7 +81,7 @@ export default function MarcoApp({
     return (
       <div className="marco-app">
         <div className="mx-auto flex min-h-screen w-full max-w-[560px] flex-col gap-4 px-3 py-3 sm:px-4 lg:py-6">
-          <section className="glass-card-strong  p-4 sm:p-5">
+            <section className="glass-card-strong no-print p-4 sm:p-5">
             <div className="flex items-center justify-between gap-3">
               <Marca href="/" compacta />
               <BotonCerrarSesion />
@@ -188,7 +188,7 @@ export default function MarcoApp({
 
           <div className="min-w-0 flex-1 space-y-4 lg:space-y-5">
             <header
-              className={`glass-card p-5 sm:p-6 lg:p-8 ${
+                className={`glass-card no-print p-5 sm:p-6 lg:p-8 ${
                 compactMobile ? "hidden lg:block" : ""
               }`}
             >

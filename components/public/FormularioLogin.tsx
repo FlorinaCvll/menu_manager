@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, {useState} from "react";
+import {useRouter} from "next/navigation";
 
 export default function FormularioLogin() {
   const router = useRouter();
@@ -83,7 +83,7 @@ export default function FormularioLogin() {
 
           <div className="rounded-[1.3rem] border border-white/10 bg-white/6 p-4">
             <label htmlFor="idPersona" className="mb-2 block text-sm font-medium text-white/88">
-              ID de usuario <span className="text-white/55">(opcional)</span>
+                ID de usuario <span className="text-white/55">(obligatorio para camareros)</span>
             </label>
             <input
                 id="idPersona"
@@ -93,10 +93,10 @@ export default function FormularioLogin() {
                 className="field appearance-none"
                 value={idPersona}
                 onChange={(event) => setIdPersona(event.target.value)}
-                placeholder="Dejalo vacio si eres admin"
+                placeholder="Ej: 2"
             />
             <p className="mt-2 text-xs leading-5 text-white/58">
-              Si accedes con el CIF/NIF del negocio, puedes dejarlo vacio y usar tu PIN de administrador.
+                Los administradores pueden dejarlo vacio. Camareros deben indicar su ID de usuario y su PIN.
             </p>
           </div>
 

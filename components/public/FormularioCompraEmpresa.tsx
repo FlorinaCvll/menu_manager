@@ -1,13 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  ArrowRight,
-  Building2,
-  Store,
-  Upload,
-} from "lucide-react";
-import { limpiarTelefono } from "@/lib/telefono";
+import React, {useState} from "react";
+import {Building2, Store, Upload,} from "lucide-react";
+import {limpiarTelefono} from "@/lib/telefono";
 
 type DatosCompra = {
   nombreRestaurante: string;
@@ -37,12 +32,10 @@ const datosIniciales: DatosCompra = {
 
 type FormularioCompraEmpresaProps = {
   mostrarFormulario: boolean;
-  onMostrarFormulario: () => void;
 };
 
 export default function FormularioCompraEmpresa({
-                                                  mostrarFormulario,
-                                                  onMostrarFormulario,
+                                                    mostrarFormulario,
                                                 }: FormularioCompraEmpresaProps)
 {
   const [datosCompra, setDatosCompra] = useState(datosIniciales);
@@ -125,17 +118,6 @@ export default function FormularioCompraEmpresa({
               </p>
             </div>
           </div>
-
-          {!mostrarFormulario ? (
-            <button
-              type="button"
-              onClick={onMostrarFormulario}
-              className="primary-button mt-8"
-            >
-              Solicitar alta
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          ) : null}
         </article>
 
         <article className="paper-panel p-6 sm:p-8">
@@ -406,7 +388,7 @@ export default function FormularioCompraEmpresa({
           ) : (
             <div className="mt-7 rounded-[1.7rem] border border-dashed border-stone-300 px-5 py-8 text-center">
               <p className="text-base font-semibold text-stone-900">
-                Pulsa en &quot;Solicitar alta&quot; para completar los datos de empresa.
+                  Pulsa en &#34;Solicitar alta&#34; para completar los datos de empresa.
               </p>
 
             </div>
