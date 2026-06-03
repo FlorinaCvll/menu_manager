@@ -1,10 +1,11 @@
 "use client";
 
-type Props = {
+type Propiedades = {
   etiqueta?: string;
 };
 
-export default function BotonImprimir({ etiqueta = "Imprimir menu" }: Props) {
+export default function BotonImprimir({etiqueta = "Imprimir menu"}: Propiedades)
+{
   return (
     <button
       type="button"

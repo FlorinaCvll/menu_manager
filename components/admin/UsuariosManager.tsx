@@ -15,7 +15,7 @@ type Usuario = {
   fechaBaja: string | null;
 };
 
-type FormState = {
+type EstadoFormulario = {
   nombre: string;
   apellidos: string;
   telefono: string;
@@ -25,7 +25,7 @@ type FormState = {
   activo: boolean;
 };
 
-const initialForm: FormState = {
+const formularioInicial: EstadoFormulario = {
   nombre: "",
   apellidos: "",
   telefono: "",
@@ -35,9 +35,9 @@ const initialForm: FormState = {
   activo: true,
 };
 
-type Props = {
+type Propiedades = {
     usuarios: Usuario[];
-    currentUserId: number;
+    idUsuarioActual: number;
 };
 
 type UsuarioApi = Omit<Usuario, "rol" | "fechaAlta" | "fechaBaja"> & {
@@ -75,14 +75,14 @@ function ordenarUsuarios(usuarios: Usuario[])
     return [...usuarios].sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 }
 
-export default function UsuariosManager({usuarios, currentUserId}: Props)
+export default function UsuariosManager({usuarios, idUsuarioActual}: Propiedades)
 {
   const [usuariosVisibles, setUsuariosVisibles] = useState(usuarios);
-  const [form, setForm] = useState<FormState>(initialForm);
-  const [editingId, setEditingId] = useState<number | null>(null);
-    const [deletingId, setDeletingId] = useState<number | null>(null);
+    const [formulario, setFormulario] = useState<EstadoFormulario>(formularioInicial);
+    const [idEnEdicion, setIdEnEdicion] = useState<number | null>(null);
+    const [idEnEliminacion, setIdEnEliminacion] = useState<number | null>(null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+    const [cargando, setCargando] = useState(false);
     const bajaEnCursoRef = useRef(false);
 
     useEffect(() =>
@@ -90,36 +90,38 @@ export default function UsuariosManager({usuarios, currentUserId}: Props)
         setUsuariosVisibles(usuarios);
     }, [usuarios]);
 
-  async function handleSubmit(event: React.SyntheticEvent<HTMLFormElement>) {
+    async function manejarEnvio(event: React.SyntheticEvent<HTMLFormElement>)
+    {
     event.preventDefault();
-    setLoading(true);
+        setCargando(true);
     setError("");
 
-    const endpoint = editingId
-      ? `/api/usuarios/${editingId}`
+        const rutaApi = idEnEdicion
+            ? `/api/usuarios/${idEnEdicion}`
       : "/api/usuarios";
-    const method = editingId ? "PUT" : "POST";
+        const metodo = idEnEdicion ? "PUT" : "POST";
 
-    const response = await fetch(endpoint, {
-      method,
+        const respuesta = await fetch(rutaApi, {
+            method: metodo,
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(form),
+            body: JSON.stringify(formulario),
     });
 
-    const data = await response.json();
+        const datos = await respuesta.json();
 
-    if (!response.ok) {
-      setError(data.error || "No se ha podido guardar el usuario.");
-      setLoading(false);
+        if (!respuesta.ok)
+        {
+            setError(datos.error || "No se ha podido guardar el usuario.");
+            setCargando(false);
       return;
     }
 
-      const usuarioGuardado = normalizarUsuario(data.item);
-      setUsuariosVisibles((current) =>
+        const usuarioGuardado = normalizarUsuario(datos.item);
+        setUsuariosVisibles((actual) =>
       {
-          const sinUsuarioPrevio = current.filter(
+          const sinUsuarioPrevio = actual.filter(
               (usuario) => usuario.idPersona !== usuarioGuardado.idPersona,
           );
 
@@ -130,14 +132,15 @@ export default function UsuariosManager({usuarios, currentUserId}: Props)
 
           return ordenarUsuarios([...sinUsuarioPrevio, usuarioGuardado]);
       });
-    setForm(initialForm);
-    setEditingId(null);
-    setLoading(false);
+        setFormulario(formularioInicial);
+        setIdEnEdicion(null);
+        setCargando(false);
   }
 
-  function handleEdit(usuario: Usuario) {
-    setEditingId(usuario.idPersona);
-    setForm({
+    function manejarEdicion(usuario: Usuario)
+    {
+        setIdEnEdicion(usuario.idPersona);
+        setFormulario({
       nombre: usuario.nombre,
       apellidos: usuario.apellidos || "",
       telefono: usuario.telefono || "",
@@ -148,8 +151,9 @@ export default function UsuariosManager({usuarios, currentUserId}: Props)
     });
   }
 
-  async function handleDelete(idPersona: number) {
-      if (idPersona === currentUserId)
+    async function manejarEliminacion(idPersona: number)
+    {
+        if (idPersona === idUsuarioActual)
       {
           setError("No puedes darte de baja a ti mismo.");
           return;
@@ -161,7 +165,7 @@ export default function UsuariosManager({usuarios, currentUserId}: Props)
       }
 
       bajaEnCursoRef.current = true;
-      setDeletingId(idPersona);
+        setIdEnEliminacion(idPersona);
 
     const confirmar = window.confirm(
       "Se dará de baja este usuario. ¿Quieres continuar?"
@@ -169,33 +173,35 @@ export default function UsuariosManager({usuarios, currentUserId}: Props)
 
     if (!confirmar) {
         bajaEnCursoRef.current = false;
-        setDeletingId(null);
+        setIdEnEliminacion(null);
       return;
     }
 
-    const response = await fetch(`/api/usuarios/${idPersona}`, {
+        const respuesta = await fetch(`/api/usuarios/${idPersona}`, {
       method: "DELETE",
     });
-    const data = await response.json();
+        const datos = await respuesta.json();
 
-    if (!response.ok) {
-      setError(data.error || "No se ha podido dar de baja el usuario.");
+        if (!respuesta.ok)
+        {
+            setError(datos.error || "No se ha podido dar de baja el usuario.");
         bajaEnCursoRef.current = false;
-        setDeletingId(null);
+            setIdEnEliminacion(null);
       return;
     }
 
-    setUsuariosVisibles((current) =>
-      current.filter((usuario) => usuario.idPersona !== idPersona),
+        setUsuariosVisibles((actual) =>
+            actual.filter((usuario) => usuario.idPersona !== idPersona),
     );
 
-    if (editingId === idPersona) {
-      setEditingId(null);
-      setForm(initialForm);
+        if (idEnEdicion === idPersona)
+        {
+            setIdEnEdicion(null);
+            setFormulario(formularioInicial);
     }
 
       bajaEnCursoRef.current = false;
-      setDeletingId(null);
+        setIdEnEliminacion(null);
   }
 
   return (
@@ -205,28 +211,28 @@ export default function UsuariosManager({usuarios, currentUserId}: Props)
           <UserPlus className="h-7 w-7 text-[var(--accent)]" />
           <div>
             <h2 className="section-title text-2xl font-semibold text-white">
-              {editingId ? "Editar usuario" : "Nuevo usuario"}
+                {idEnEdicion ? "Editar usuario" : "Nuevo usuario"}
             </h2>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <form onSubmit={manejarEnvio} className="mt-6 space-y-4">
           <input
             className="field"
             placeholder="Nombre"
-            value={form.nombre}
+            value={formulario.nombre}
             onChange={(event) =>
-              setForm((current) => ({ ...current, nombre: event.target.value }))
+                setFormulario((actual) => ({...actual, nombre: event.target.value}))
             }
             required
           />
           <input
             className="field"
             placeholder="Apellidos"
-            value={form.apellidos}
+            value={formulario.apellidos}
             onChange={(event) =>
-              setForm((current) => ({
-                ...current,
+                setFormulario((actual) => ({
+                    ...actual,
                 apellidos: event.target.value,
               }))
             }
@@ -235,30 +241,30 @@ export default function UsuariosManager({usuarios, currentUserId}: Props)
             className="field"
             type="tel"
             placeholder="Teléfono"
-            value={form.telefono}
+            value={formulario.telefono}
             onChange={(event) =>
-              setForm((current) => ({
-                ...current,
+                setFormulario((actual) => ({
+                    ...actual,
                 telefono: limpiarTelefono(event.target.value),
               }))
             }
           />
           <input
             className="field"
-            placeholder={editingId ? "Nuevo PIN (opcional)" : "PIN"}
+            placeholder={idEnEdicion ? "Nuevo PIN (opcional)" : "PIN"}
             type="password"
-            value={form.pin}
+            value={formulario.pin}
             onChange={(event) =>
-              setForm((current) => ({ ...current, pin: event.target.value }))
+                setFormulario((actual) => ({...actual, pin: event.target.value}))
             }
           />
           <select
             className="field"
-            value={form.rol}
+            value={formulario.rol}
             onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                rol: event.target.value as FormState["rol"],
+                setFormulario((actual) => ({
+                    ...actual,
+                    rol: event.target.value as EstadoFormulario["rol"],
               }))
             }
           >
@@ -268,10 +274,10 @@ export default function UsuariosManager({usuarios, currentUserId}: Props)
           <textarea
             className="field min-h-28"
             placeholder="Comentarios"
-            value={form.comentarios}
+            value={formulario.comentarios}
             onChange={(event) =>
-              setForm((current) => ({
-                ...current,
+                setFormulario((actual) => ({
+                    ...actual,
                 comentarios: event.target.value,
               }))
             }
@@ -280,10 +286,10 @@ export default function UsuariosManager({usuarios, currentUserId}: Props)
           <label className="flex items-center gap-3 border border-white/10 bg-white/5 px-4 py-3 text-sm">
             <input
               type="checkbox"
-              checked={form.activo}
+              checked={formulario.activo}
               onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
+                  setFormulario((actual) => ({
+                      ...actual,
                   activo: event.target.checked,
                 }))
               }
@@ -298,16 +304,16 @@ export default function UsuariosManager({usuarios, currentUserId}: Props)
           ) : null}
 
           <div className="flex flex-wrap gap-3">
-            <button type="submit" className="primary-button" disabled={loading}>
-              {loading ? "Guardando..." : editingId ? "Actualizar" : "Crear"}
+              <button type="submit" className="primary-button" disabled={cargando}>
+                  {cargando ? "Guardando..." : idEnEdicion ? "Actualizar" : "Crear"}
             </button>
-            {editingId ? (
+              {idEnEdicion ? (
               <button
                 type="button"
                 className="secondary-button"
                 onClick={() => {
-                  setEditingId(null);
-                  setForm(initialForm);
+                    setIdEnEdicion(null);
+                    setFormulario(formularioInicial);
                   setError("");
                 }}
               >
@@ -366,12 +372,12 @@ export default function UsuariosManager({usuarios, currentUserId}: Props)
                   <button
                     type="button"
                     className="secondary-button px-4 py-3 text-sm"
-                    onClick={() => handleEdit(usuario)}
+                    onClick={() => manejarEdicion(usuario)}
                   >
                     <Pencil className="h-4 w-4" />
                     Editar
                   </button>
-                    {usuario.idPersona === currentUserId ? (
+                    {usuario.idPersona === idUsuarioActual ? (
                         <button
                             type="button"
                             className="secondary-button px-4 py-3 text-sm opacity-60"
@@ -383,11 +389,11 @@ export default function UsuariosManager({usuarios, currentUserId}: Props)
                         <button
                             type="button"
                             className="secondary-button px-4 py-3 text-sm text-red-100"
-                            disabled={deletingId !== null}
-                            onClick={() => handleDelete(usuario.idPersona)}
+                            disabled={idEnEliminacion !== null}
+                            onClick={() => manejarEliminacion(usuario.idPersona)}
                         >
                             <Trash2 className="h-4 w-4"/>
-                            {deletingId === usuario.idPersona ? "Dando baja..." : "Baja"}
+                            {idEnEliminacion === usuario.idPersona ? "Dando baja..." : "Baja"}
                         </button>
                     )}
                 </div>

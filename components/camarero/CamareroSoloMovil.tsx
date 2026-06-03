@@ -1,17 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import {MonitorSmartphone} from "lucide-react";
-import type { UsuarioSesion } from "@/types/session";
+import type {UsuarioSesion} from "@/types/session";
 
-type CamareroSoloMovilProps = {
+type PropiedadesCamareroSoloMovil = {
   session: UsuarioSesion;
   children: React.ReactNode;
 };
 
 export default function CamareroSoloMovil({
   children,
-}: CamareroSoloMovilProps) {
+                                          }: PropiedadesCamareroSoloMovil)
+{
   const [anchoPantalla, setAnchoPantalla] = useState<number | null>(null);
 
   useEffect(() => {

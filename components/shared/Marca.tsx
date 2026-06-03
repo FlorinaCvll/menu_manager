@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-type MarcaProps = {
+type PropiedadesMarca = {
   compacta?: boolean;
   href?: string;
 };
@@ -9,7 +9,8 @@ type MarcaProps = {
 export default function Marca({
   compacta = false,
   href = "/",
-}: MarcaProps) {
+                              }: PropiedadesMarca)
+{
   return (
     <Link href={href} className="inline-flex items-center gap-3">
       <span className="glass-card-strong flex h-11 w-11 items-center justify-center rounded-[0.9rem] border border-white/10">

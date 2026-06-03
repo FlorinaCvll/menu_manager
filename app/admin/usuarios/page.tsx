@@ -18,7 +18,7 @@ export default async function UsuariosPage() {
 
   return (
     <UsuariosManager
-        currentUserId={sesion.idPersona}
+        idUsuarioActual={sesion.idPersona}
         usuarios={usuarios.map(
             (usuario: {
                 idPersona: number;

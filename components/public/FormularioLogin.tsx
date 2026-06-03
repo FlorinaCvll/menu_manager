@@ -4,7 +4,7 @@ import React, {useState} from "react";
 import {useRouter} from "next/navigation";
 
 export default function FormularioLogin() {
-  const router = useRouter();
+    const enrutador = useRouter();
   const [idPersona, setIdPersona] = useState("");
   const [negocioAcceso, setNegocioAcceso] = useState("");
   const [pin, setPin] = useState("");
@@ -38,14 +38,14 @@ export default function FormularioLogin() {
       }
 
       localStorage.setItem("usuario", JSON.stringify(datos.usuario));
-      router.replace(
+        enrutador.replace(
           datos.usuario.rol === "superadmin"
               ? "/superadmin/altas"
               : datos.usuario.rol === "admin"
                   ? "/admin"
                   : "/camarero",
       );
-      router.refresh();
+        enrutador.refresh();
     } catch {
       setError("Error de conexión. Inténtalo de nuevo más tarde.");
     } finally {

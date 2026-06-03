@@ -1,6 +1,8 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { verifyStripeWebhookSignature } from "@/lib/stripe";
+import {NextResponse} from "next/server";
+import {revalidateTag} from "next/cache";
+import {cacheTags} from "@/lib/cache-tags";
+import {prisma} from "@/lib/prisma";
+import {verifyStripeWebhookSignature} from "@/lib/stripe";
 
 export const runtime = "nodejs";
 
@@ -54,6 +56,7 @@ export async function POST(request: Request) {
           stripePaymentIntentId: session.payment_intent || null,
         },
       });
+        revalidateTag(cacheTags.solicitudesAlta, "max");
     }
   }
 

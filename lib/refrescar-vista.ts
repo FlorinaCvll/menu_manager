@@ -2,6 +2,7 @@ type RouterConRefresh = {
   refresh: () => void;
 };
 
-export function refrescarVista(router: RouterConRefresh) {
-  router.refresh();
+export function refrescarVista(enrutador: RouterConRefresh)
+{
+    enrutador.refresh();
 }

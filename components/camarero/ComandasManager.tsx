@@ -1,14 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import {useMemo, useState} from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import {
-  ReceiptText,
-  Soup,
-  UtensilsCrossed,
-} from "lucide-react";
-import { refrescarVista } from "@/lib/refrescar-vista";
+import {useRouter} from "next/navigation";
+import {ReceiptText, Soup, UtensilsCrossed,} from "lucide-react";
+import {refrescarVista} from "@/lib/refrescar-vista";
 
 type Plato = {
   idPlato: number;
@@ -30,7 +26,7 @@ type Comanda = {
   platos: PlatoComanda[];
 };
 
-type Props = {
+type Propiedades = {
   menuDelDia: Plato[];
   raciones: Plato[];
   postres: Plato[];
@@ -158,9 +154,10 @@ export default function ComandasManager({
   raciones,
   postres,
   comandas,
-}: Props) {
-  const router = useRouter();
-  const [numMesa, setNumMesa] = useState("1");
+                                        }: Propiedades)
+{
+    const enrutador = useRouter();
+    const [numMesa, setNumMesa] = useState("");
   const [numComensales, setNumComensales] = useState("2");
   const [empresa, setEmpresa] = useState(false);
   const [cantidadesSeleccionadas, setCantidadesSeleccionadas] = useState<Cantidades>({});
@@ -239,13 +236,14 @@ export default function ComandasManager({
     }));
   }
 
-  async function handleCrearComanda(event: React.FormEvent<HTMLFormElement>) {
+    async function manejarCreacionComanda(event: React.FormEvent<HTMLFormElement>)
+    {
     event.preventDefault();
     setError("");
 
     const lineas = obtenerLineas(cantidadesSeleccionadas);
 
-    const response = await fetch("/api/comandas", {
+        const respuesta = await fetch("/api/comandas", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -258,18 +256,19 @@ export default function ComandasManager({
       }),
     });
 
-    const data = await response.json();
+        const datos = await respuesta.json();
 
-    if (!response.ok) {
-      setError(data.error || "No se ha podido crear la comanda.");
+        if (!respuesta.ok)
+        {
+            setError(datos.error || "No se ha podido crear la comanda.");
       return;
     }
 
-    setNumMesa("1");
+        setNumMesa("");
     setNumComensales("2");
     setEmpresa(false);
     setCantidadesSeleccionadas({});
-    refrescarVista(router);
+        refrescarVista(enrutador);
   }
 
   async function cerrarComanda(idComanda: number) {
@@ -280,7 +279,7 @@ export default function ComandasManager({
       return;
     }
 
-    const response = await fetch(`/api/comandas/${idComanda}`, {
+      const respuesta = await fetch(`/api/comandas/${idComanda}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -288,15 +287,16 @@ export default function ComandasManager({
       body: JSON.stringify({ lineas }),
     });
 
-    const data = await response.json();
+      const datos = await respuesta.json();
 
-    if (!response.ok) {
-      setError(data.error || "No se ha podido cerrar la comanda.");
+      if (!respuesta.ok)
+      {
+          setError(datos.error || "No se ha podido cerrar la comanda.");
       return;
     }
 
     setCierres((actuales) => ({ ...actuales, [idComanda]: {} }));
-    refrescarVista(router);
+      refrescarVista(enrutador);
   }
 
   return (
@@ -325,15 +325,15 @@ export default function ComandasManager({
           </div>
         </div>
 
-        <form onSubmit={handleCrearComanda} className="mt-6 space-y-5">
+          <form onSubmit={manejarCreacionComanda} className="mt-6 space-y-5">
           <div className="grid gap-4 md:grid-cols-2">
             <label className="block text-sm text-emerald-50/92">
-              <span className="mb-2 block font-semibold text-white">Mesa</span>
+                <span className="mb-2 block font-semibold text-white">Numero de mesa</span>
               <input
                 type="number"
                 min="1"
                 className="field"
-                placeholder="Ejemplo: 4"
+                placeholder="Ejemplo: 14 o 22"
                 value={numMesa}
                 onChange={(event) => setNumMesa(event.target.value)}
                 required

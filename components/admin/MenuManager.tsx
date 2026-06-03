@@ -1,19 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import {
-  CalendarDays,
-  ClipboardList,
-  PlusCircle,
-  ReceiptText,
-  Soup,
-  UtensilsCrossed,
-} from "lucide-react";
-import { refrescarVista } from "@/lib/refrescar-vista";
-import { fechaAInput } from "@/lib/fechas";
+import {useState} from "react";
+import {useRouter} from "next/navigation";
+import {CalendarDays, ClipboardList, PlusCircle, ReceiptText, Soup, UtensilsCrossed,} from "lucide-react";
+import {refrescarVista} from "@/lib/refrescar-vista";
+import {fechaAInput} from "@/lib/fechas";
 
-type Props = {
+type Propiedades = {
   menuHoy:
     | {
         fecha: string;
@@ -81,8 +74,9 @@ function PasoTexto({
   );
 }
 
-export default function MenuManager({ menuHoy }: Props) {
-  const router = useRouter();
+export default function MenuManager({menuHoy}: Propiedades)
+{
+    const enrutador = useRouter();
   const [fecha, setFecha] = useState(
     menuHoy?.fecha || fechaAInput(new Date())
   );
@@ -106,14 +100,15 @@ export default function MenuManager({ menuHoy }: Props) {
     menuHoy?.postres.join("\n") || ""
   );
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+    const [exito, setExito] = useState("");
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    async function manejarEnvio(event: React.FormEvent<HTMLFormElement>)
+    {
     event.preventDefault();
     setError("");
-    setSuccess("");
+        setExito("");
 
-    const response = await fetch("/api/menus", {
+        const respuesta = await fetch("/api/menus", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -130,19 +125,20 @@ export default function MenuManager({ menuHoy }: Props) {
       }),
     });
 
-    const data = await response.json();
+        const datos = await respuesta.json();
 
-    if (!response.ok) {
-      setError(data.error || "No se ha podido guardar el menú.");
+        if (!respuesta.ok)
+        {
+            setError(datos.error || "No se ha podido guardar el menú.");
       return;
     }
 
-    setSuccess(`Menú guardado correctamente para ${fecha}.`);
-    refrescarVista(router);
+        setExito(`Menú guardado correctamente para ${fecha}.`);
+        refrescarVista(enrutador);
   }
 
   return (
-    <form onSubmit={handleSubmit} className="glass-card p-6">
+      <form onSubmit={manejarEnvio} className="glass-card p-6">
       <div className="flex items-center gap-3">
         <PlusCircle className="h-7 w-7 text-[var(--accent)]" />
         <div>
@@ -271,9 +267,9 @@ export default function MenuManager({ menuHoy }: Props) {
           </p>
         ) : null}
 
-        {success ? (
+          {exito ? (
           <p className=" border border-emerald-200/35 bg-emerald-200/18 px-4 py-3 text-sm text-emerald-50">
-            {success}
+              {exito}
           </p>
         ) : null}
 

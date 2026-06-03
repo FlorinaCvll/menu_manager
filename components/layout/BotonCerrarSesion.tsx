@@ -1,24 +1,25 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import {useRouter} from "next/navigation";
 
 export default function BotonCerrarSesion() {
-  const router = useRouter();
+    const enrutador = useRouter();
 
-  async function handleLogout() {
+    async function manejarCierreSesion()
+    {
     await fetch("/api/auth/logout", {
       method: "POST",
     });
 
     localStorage.removeItem("usuario");
-    router.replace("/login");
-    router.refresh();
+        enrutador.replace("/login");
+        enrutador.refresh();
   }
 
   return (
     <button
       type="button"
-      onClick={handleLogout}
+      onClick={manejarCierreSesion}
       className="secondary-button text-sm"
     >
       Cerrar sesión

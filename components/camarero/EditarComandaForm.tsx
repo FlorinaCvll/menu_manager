@@ -1,13 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import {useMemo, useState} from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import {
-  ReceiptText,
-  Soup,
-  UtensilsCrossed,
-} from "lucide-react";
+import {useRouter} from "next/navigation";
+import {ReceiptText, Soup, UtensilsCrossed,} from "lucide-react";
 
 type Plato = {
   idPlato: number;
@@ -19,7 +15,7 @@ type PlatoActual = Plato & {
   cantidad: number;
 };
 
-type Props = {
+type Propiedades = {
   idComanda: number;
   numMesaInicial: number;
   numComensalesInicial: number;
@@ -154,8 +150,9 @@ export default function EditarComandaForm({
   raciones,
   postres,
   platosActuales,
-}: Props) {
-  const router = useRouter();
+                                          }: Propiedades)
+{
+    const enrutador = useRouter();
   const [numMesa, setNumMesa] = useState(String(numMesaInicial));
   const [numComensales, setNumComensales] = useState(String(numComensalesInicial));
   const [empresa, setEmpresa] = useState(empresaInicial);
@@ -217,7 +214,7 @@ export default function EditarComandaForm({
     setGuardando(true);
     setError("");
 
-    const response = await fetch(`/api/comandas/${idComanda}`, {
+      const respuesta = await fetch(`/api/comandas/${idComanda}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -230,16 +227,17 @@ export default function EditarComandaForm({
       }),
     });
 
-    const data = await response.json();
+      const datos = await respuesta.json();
 
-    if (!response.ok) {
-      setError(data.error || "No se ha podido editar la comanda.");
+      if (!respuesta.ok)
+      {
+          setError(datos.error || "No se ha podido editar la comanda.");
       setGuardando(false);
       return;
     }
 
-    router.push("/camarero/comandas");
-    router.refresh();
+      enrutador.push("/camarero/comandas");
+      enrutador.refresh();
   }
 
   return (
@@ -270,11 +268,12 @@ export default function EditarComandaForm({
       <form onSubmit={guardarCambios} className="mt-6 space-y-5">
         <div className="grid gap-4 md:grid-cols-2">
           <label className="block text-sm text-emerald-50/92">
-            <span className="mb-2 block font-semibold text-white">Mesa</span>
+              <span className="mb-2 block font-semibold text-white">Numero de mesa</span>
             <input
               type="number"
               min="1"
               className="field"
+              placeholder="Ejemplo: 14 o 22"
               value={numMesa}
               onChange={(event) => setNumMesa(event.target.value)}
               required

@@ -9,7 +9,7 @@ type ElementoNavegacion = {
   label: string;
 };
 
-type MarcoAppProps = {
+type PropiedadesMarcoApp = {
   navegacion: ElementoNavegacion[];
   navegacionSecundaria?: ElementoNavegacion[];
   tituloNavegacion?: string;
@@ -74,7 +74,8 @@ export default function MarcoApp({
   description,
   children,
   compactMobile = false,
-}: MarcoAppProps) {
+                                 }: PropiedadesMarcoApp)
+{
   const tieneNavegacionSecundaria = Boolean(navegacionSecundaria?.length);
 
   if (compactMobile) {

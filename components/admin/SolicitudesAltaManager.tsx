@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { refrescarVista } from "@/lib/refrescar-vista";
+import {useEffect, useState} from "react";
+import {useRouter} from "next/navigation";
+import {refrescarVista} from "@/lib/refrescar-vista";
 
 const estados = [
   { valor: "todas", label: "Todas" },
@@ -40,8 +40,8 @@ export default function SolicitudesAltaManager({
 }: {
   solicitudes: SolicitudAlta[];
 }) {
-  const router = useRouter();
-  const [items, setItems] = useState(solicitudes);
+    const enrutador = useRouter();
+    const [elementos, setElementos] = useState(solicitudes);
   const [cargandoId, setCargandoId] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [filtroEstado, setFiltroEstado] = useState<(typeof estados)[number]["valor"]>(
@@ -51,21 +51,21 @@ export default function SolicitudesAltaManager({
     useState<CredencialesActivacion | null>(null);
 
   useEffect(() => {
-    setItems(solicitudes);
+      setElementos(solicitudes);
   }, [solicitudes]);
 
   const resumen = {
-    total: items.length,
-    pendientePago: items.filter((item) => item.estado === "pendiente_pago").length,
-    porRevisar: items.filter((item) => item.estado === "pago_confirmado").length,
-    validadas: items.filter((item) => item.estado === "validada").length,
-    rechazadas: items.filter((item) => item.estado === "rechazada").length,
+      total: elementos.length,
+      pendientePago: elementos.filter((elemento) => elemento.estado === "pendiente_pago").length,
+      porRevisar: elementos.filter((elemento) => elemento.estado === "pago_confirmado").length,
+      validadas: elementos.filter((elemento) => elemento.estado === "validada").length,
+      rechazadas: elementos.filter((elemento) => elemento.estado === "rechazada").length,
   };
 
-  const itemsFiltrados =
+    const elementosFiltrados =
     filtroEstado === "todas"
-      ? items
-      : items.filter((item) => item.estado === filtroEstado);
+        ? elementos
+        : elementos.filter((elemento) => elemento.estado === filtroEstado);
 
   async function cambiarEstado(idSolicitudAlta: number, accion: "aprobar" | "rechazar") {
     setError("");
@@ -86,9 +86,9 @@ export default function SolicitudesAltaManager({
         return;
       }
 
-      setItems((actuales) =>
-        actuales.map((item) =>
-          item.idSolicitudAlta === idSolicitudAlta ? datos.solicitud || datos.item : item,
+        setElementos((actuales) =>
+            actuales.map((elemento) =>
+                elemento.idSolicitudAlta === idSolicitudAlta ? datos.solicitud || datos.item : elemento,
         ),
       );
 
@@ -96,7 +96,7 @@ export default function SolicitudesAltaManager({
         setCredenciales(datos.credenciales);
       }
 
-      refrescarVista(router);
+        refrescarVista(enrutador);
     } catch {
       setError("Se ha producido un error al actualizar la solicitud.");
     } finally {
@@ -178,13 +178,14 @@ export default function SolicitudesAltaManager({
       ) : null}
 
       <div className="mt-6 grid gap-4">
-        {itemsFiltrados.length === 0 ? (
+          {elementosFiltrados.length === 0 ? (
           <p className="paper-panel p-5 text-sm text-stone-700">
             No hay solicitudes que coincidan con el filtro seleccionado.
           </p>
         ) : null}
 
-        {itemsFiltrados.map((solicitud) => {
+          {elementosFiltrados.map((solicitud) =>
+          {
           const pagoConfirmado =
             solicitud.estado === "pago_confirmado" || solicitud.estado === "validada";
           const yaActivada = solicitud.estado === "validada";

@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
-import { retrieveStripeCheckoutSession } from "@/lib/stripe";
+import {revalidateTag} from "next/cache";
+import {cacheTags} from "@/lib/cache-tags";
+import {prisma} from "@/lib/prisma";
+import {retrieveStripeCheckoutSession} from "@/lib/stripe";
 
 export default async function AltaSuccessPage({
   searchParams,
@@ -26,6 +28,7 @@ export default async function AltaSuccessPage({
             stripePaymentIntentId: session.payment_intent || null,
           },
         });
+          revalidateTag(cacheTags.solicitudesAlta, "max");
         pagoVerificado = true;
       } else {
         aviso = "Stripe ha devuelto la sesión, pero el pago todavía no figura como completado.";

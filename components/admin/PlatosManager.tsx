@@ -12,16 +12,16 @@ type Plato = {
   alergenos: string | null;
 };
 
-type Props = {
+type Propiedades = {
   titulo: string;
   descripcion: string;
   tipo: plato_tipoPlato;
-  endpoint?: string;
+    rutaApi?: string;
   platos: Plato[];
   permitirCargaRapida?: boolean;
 };
 
-const emptyForm = {
+const formularioVacio = {
   nombre: "",
   precioIndividual: "0",
   ingredientes: "",
@@ -52,13 +52,14 @@ export default function PlatosManager({
   titulo,
   descripcion,
   tipo,
-  endpoint = "/api/platos",
+                                          rutaApi = "/api/platos",
   platos,
   permitirCargaRapida = false,
-}: Props) {
+                                      }: Propiedades)
+{
     const [platosVisibles, setPlatosVisibles] = useState(platos);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [form, setForm] = useState(emptyForm);
+    const [idEnEdicion, setIdEnEdicion] = useState<number | null>(null);
+    const [formulario, setFormulario] = useState(formularioVacio);
   const [loteTexto, setLoteTexto] = useState("");
   const [error, setError] = useState("");
 
@@ -67,45 +68,48 @@ export default function PlatosManager({
         setPlatosVisibles(platos);
     }, [platos]);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    async function manejarEnvio(event: React.FormEvent<HTMLFormElement>)
+    {
     event.preventDefault();
     setError("");
 
-    const url = editingId ? `${endpoint}/${editingId}` : endpoint;
-    const method = editingId ? "PUT" : "POST";
+        const urlDestino = idEnEdicion ? `${rutaApi}/${idEnEdicion}` : rutaApi;
+        const metodo = idEnEdicion ? "PUT" : "POST";
 
-    const response = await fetch(url, {
-      method,
+        const respuesta = await fetch(urlDestino, {
+            method: metodo,
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        ...form,
+          ...formulario,
         tipoPlato: tipo,
       }),
     });
 
-    const data = await response.json();
+        const datos = await respuesta.json();
 
-    if (!response.ok) {
-      setError(data.error || "No se ha podido guardar el plato.");
+        if (!respuesta.ok)
+        {
+            setError(datos.error || "No se ha podido guardar el plato.");
       return;
     }
 
-      const platoGuardado = normalizarPlato(data.item);
-      setPlatosVisibles((current) =>
+        const platoGuardado = normalizarPlato(datos.item);
+        setPlatosVisibles((actual) =>
       {
-          const sinPlatoPrevio = current.filter(
+          const sinPlatoPrevio = actual.filter(
               (plato) => plato.idPlato !== platoGuardado.idPlato,
           );
 
           return ordenarPlatos([...sinPlatoPrevio, platoGuardado]);
       });
-    setEditingId(null);
-    setForm(emptyForm);
+        setIdEnEdicion(null);
+        setFormulario(formularioVacio);
   }
 
-  async function handleBulkSubmit(event: React.FormEvent<HTMLFormElement>) {
+    async function manejarCargaRapida(event: React.FormEvent<HTMLFormElement>)
+    {
     event.preventDefault();
     setError("");
 
@@ -119,7 +123,7 @@ export default function PlatosManager({
       return;
     }
 
-    const response = await fetch(endpoint, {
+        const respuesta = await fetch(rutaApi, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -130,22 +134,23 @@ export default function PlatosManager({
       }),
     });
 
-    const data = await response.json();
+        const datos = await respuesta.json();
 
-    if (!response.ok) {
-      setError(data.error || "No se ha podido hacer la carga rápida.");
+        if (!respuesta.ok)
+        {
+            setError(datos.error || "No se ha podido hacer la carga rápida.");
       return;
     }
 
-      if (Array.isArray(data.items))
+        if (Array.isArray(datos.items))
       {
-          const platosCreados = data.items.map(normalizarPlato);
-          setPlatosVisibles((current) => ordenarPlatos([...current, ...platosCreados]));
+          const platosCreados = datos.items.map(normalizarPlato);
+          setPlatosVisibles((actual) => ordenarPlatos([...actual, ...platosCreados]));
       } else
       {
-          setPlatosVisibles((current) =>
+          setPlatosVisibles((actual) =>
               ordenarPlatos([
-                  ...current,
+                  ...actual,
                   ...lineas.map((nombre, index) => ({
                       idPlato: -Date.now() - index,
                       nombre,
@@ -159,9 +164,10 @@ export default function PlatosManager({
     setLoteTexto("");
   }
 
-  function handleEdit(plato: Plato) {
-    setEditingId(plato.idPlato);
-    setForm({
+    function manejarEdicion(plato: Plato)
+    {
+        setIdEnEdicion(plato.idPlato);
+        setFormulario({
       nombre: plato.nombre,
       precioIndividual: String(plato.precioIndividual),
       ingredientes: plato.ingredientes || "",
@@ -169,7 +175,8 @@ export default function PlatosManager({
     });
   }
 
-  async function handleDelete(idPlato: number) {
+    async function manejarEliminacion(idPlato: number)
+    {
     const confirmar = window.confirm("¿Quieres eliminar este plato?");
 
     if (!confirmar) {
@@ -178,20 +185,20 @@ export default function PlatosManager({
 
       setError("");
 
-      const response = await fetch(`${endpoint}/${idPlato}`, {
+        const respuesta = await fetch(`${rutaApi}/${idPlato}`, {
       method: "DELETE",
     });
 
-      const data = await response.json();
+        const datos = await respuesta.json();
 
-      if (!response.ok)
+        if (!respuesta.ok)
       {
-          setError(data.error || "No se ha podido eliminar el plato.");
+          setError(datos.error || "No se ha podido eliminar el plato.");
           return;
       }
 
-      setPlatosVisibles((current) =>
-          current.filter((plato) => plato.idPlato !== idPlato),
+        setPlatosVisibles((actual) =>
+            actual.filter((plato) => plato.idPlato !== idPlato),
       );
   }
 
@@ -204,17 +211,17 @@ export default function PlatosManager({
     <div className="grid gap-5 xl:grid-cols-[0.88fr_1.12fr]">
       <section className="glass-card p-6">
         <h2 className="section-title text-2xl font-semibold text-white">
-          {editingId ? `Editar ${titulo.toLowerCase()}` : `Añadir ${titulo.toLowerCase()}`}
+            {idEnEdicion ? `Editar ${titulo.toLowerCase()}` : `Añadir ${titulo.toLowerCase()}`}
         </h2>
         <p className="mt-2 text-sm text-[var(--muted)]">{descripcion}</p>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <form onSubmit={manejarEnvio} className="mt-6 space-y-4">
           <input
             className="field"
             placeholder="Nombre"
-            value={form.nombre}
+            value={formulario.nombre}
             onChange={(event) =>
-              setForm((current) => ({ ...current, nombre: event.target.value }))
+                setFormulario((actual) => ({...actual, nombre: event.target.value}))
             }
             required
           />
@@ -224,10 +231,10 @@ export default function PlatosManager({
             min="0"
             step="0.01"
             placeholder="Precio"
-            value={form.precioIndividual}
+            value={formulario.precioIndividual}
             onChange={(event) =>
-              setForm((current) => ({
-                ...current,
+                setFormulario((actual) => ({
+                    ...actual,
                 precioIndividual: event.target.value,
               }))
             }
@@ -236,10 +243,10 @@ export default function PlatosManager({
           <textarea
             className="field min-h-24"
             placeholder="Ingredientes"
-            value={form.ingredientes}
+            value={formulario.ingredientes}
             onChange={(event) =>
-              setForm((current) => ({
-                ...current,
+                setFormulario((actual) => ({
+                    ...actual,
                 ingredientes: event.target.value,
               }))
             }
@@ -247,10 +254,10 @@ export default function PlatosManager({
           <textarea
             className="field min-h-24"
             placeholder="Alérgenos"
-            value={form.alergenos}
+            value={formulario.alergenos}
             onChange={(event) =>
-              setForm((current) => ({
-                ...current,
+                setFormulario((actual) => ({
+                    ...actual,
                 alergenos: event.target.value,
               }))
             }
@@ -264,15 +271,15 @@ export default function PlatosManager({
 
           <div className="flex flex-wrap gap-3">
             <button className="primary-button" type="submit">
-              {editingId ? "Actualizar" : "Guardar"}
+                {idEnEdicion ? "Actualizar" : "Guardar"}
             </button>
-            {editingId ? (
+              {idEnEdicion ? (
               <button
                 type="button"
                 className="secondary-button"
                 onClick={() => {
-                  setEditingId(null);
-                  setForm(emptyForm);
+                    setIdEnEdicion(null);
+                    setFormulario(formularioVacio);
                   setError("");
                 }}
               >
@@ -282,9 +289,9 @@ export default function PlatosManager({
           </div>
         </form>
 
-        {permitirCargaRapida && !editingId ? (
+          {permitirCargaRapida && !idEnEdicion ? (
           <form
-            onSubmit={handleBulkSubmit}
+              onSubmit={manejarCargaRapida}
             className="mt-6 border-t border-white/10 pt-6"
           >
             <h3 className="text-lg font-semibold text-white">Carga rápida</h3>
@@ -336,7 +343,7 @@ export default function PlatosManager({
                   <button
                     type="button"
                     className="secondary-button px-4 py-3 text-sm"
-                    onClick={() => handleEdit(plato)}
+                    onClick={() => manejarEdicion(plato)}
                   >
                     <Pencil className="h-4 w-4" />
                     Editar
@@ -344,7 +351,7 @@ export default function PlatosManager({
                   <button
                     type="button"
                     className="secondary-button px-4 py-3 text-sm text-red-100"
-                    onClick={() => handleDelete(plato.idPlato)}
+                    onClick={() => manejarEliminacion(plato.idPlato)}
                   >
                     <Trash2 className="h-4 w-4" />
                     Eliminar

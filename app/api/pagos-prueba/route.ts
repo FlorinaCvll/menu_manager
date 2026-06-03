@@ -1,6 +1,8 @@
-import { NextResponse } from "next/server";
-import { jsonError } from "@/lib/api";
-import { prisma } from "@/lib/prisma";
+import {NextResponse} from "next/server";
+import {revalidateTag} from "next/cache";
+import {jsonError} from "@/lib/api";
+import {cacheTags} from "@/lib/cache-tags";
+import {prisma} from "@/lib/prisma";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -35,5 +37,6 @@ export async function POST(request: Request) {
     },
   });
 
+  revalidateTag(cacheTags.solicitudesAlta, "max");
   return NextResponse.json({ ok: true, item: actualizada });
 }
