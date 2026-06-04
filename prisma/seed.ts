@@ -1,7 +1,7 @@
 import "dotenv/config";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
-import { PrismaClient } from "../generated/prisma/client";
-import { persona_rol } from "../generated/prisma/enums";
+import {PrismaMariaDb} from "@prisma/adapter-mariadb";
+import {PrismaClient} from "../generated/prisma/client";
+import {persona_rol} from "../generated/prisma/enums";
 import bcrypt from "bcryptjs";
 
 const adapter = new PrismaMariaDb({
@@ -107,6 +107,7 @@ async function main() {
             nombre: "Ensalada mixta",
             precioIndividual: 8.5,
             tipoPlato: "primero",
+            idNegocio: negocio.idNegocio,
         },
     });
 
@@ -117,6 +118,7 @@ async function main() {
             nombre: "Lentejas",
             precioIndividual: 9,
             tipoPlato: "primero",
+            idNegocio: negocio.idNegocio,
         },
     });
 
@@ -127,6 +129,7 @@ async function main() {
             nombre: "Pollo asado",
             precioIndividual: 12.5,
             tipoPlato: "segundo",
+            idNegocio: negocio.idNegocio,
         },
     });
 
@@ -137,6 +140,7 @@ async function main() {
             nombre: "Merluza",
             precioIndividual: 13.5,
             tipoPlato: "segundo",
+            idNegocio: negocio.idNegocio,
         },
     });
 
@@ -147,6 +151,7 @@ async function main() {
             nombre: "Tarta queso",
             precioIndividual: 4.5,
             tipoPlato: "postre",
+            idNegocio: negocio.idNegocio,
         },
     });
 
@@ -157,6 +162,7 @@ async function main() {
             nombre: "Flan",
             precioIndividual: 4,
             tipoPlato: "postre",
+            idNegocio: negocio.idNegocio,
         },
     });
 

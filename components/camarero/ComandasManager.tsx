@@ -59,6 +59,20 @@ function totalSeleccionado(cantidades: Cantidades) {
   return Object.values(cantidades).reduce((total, cantidad) => total + cantidad, 0);
 }
 
+function totalPorTipo(platos: Plato[], cantidades: Cantidades, tipo: Plato["tipoPlato"])
+{
+    const ids = new Set(
+        platos
+            .filter((plato) => plato.tipoPlato === tipo)
+            .map((plato) => plato.idPlato)
+    );
+
+    return Object.entries(cantidades).reduce((total, [idPlato, cantidad]) =>
+    {
+        return ids.has(Number(idPlato)) ? total + cantidad : total;
+    }, 0);
+}
+
 function obtenerLineas(cantidades: Cantidades) {
   return Object.entries(cantidades)
     .map(([idPlato, cantidad]) => ({
@@ -167,6 +181,17 @@ export default function ComandasManager({
   const [bloqueActivo, setBloqueActivo] = useState<BloqueActivo>("todo");
 
   const totalActual = totalSeleccionado(cantidadesSeleccionadas);
+    const primerosSeleccionados = totalPorTipo(
+        menuDelDia,
+        cantidadesSeleccionadas,
+        "primero"
+    );
+    const segundosSeleccionados = totalPorTipo(
+        menuDelDia,
+        cantidadesSeleccionadas,
+        "segundo"
+    );
+    const menusSeleccionados = Math.max(primerosSeleccionados, segundosSeleccionados);
   const busquedaNormalizada = busqueda.trim().toLowerCase();
 
   const primerosFiltrados = useMemo(
@@ -319,9 +344,9 @@ export default function ComandasManager({
           </div>
           <div className=" border border-white/10 bg-white/8 p-4">
             <p className="text-xs uppercase tracking-[0.22em] text-emerald-50/75">
-              Unidades
+                Menus
             </p>
-            <p className="mt-2 text-2xl font-semibold text-white">{totalActual}</p>
+              <p className="mt-2 text-2xl font-semibold text-white">{menusSeleccionados}</p>
           </div>
         </div>
 
@@ -446,7 +471,7 @@ export default function ComandasManager({
 
           <div className=" border border-white/10 bg-white/6 p-3 sm:border-0 sm:bg-transparent sm:p-0">
             <button className="primary-button w-full sm:w-auto" type="submit">
-              Guardar comanda ({totalActual})
+                Guardar comanda
             </button>
           </div>
         </form>

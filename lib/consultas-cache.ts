@@ -34,18 +34,24 @@ export function obtenerUsuariosCacheados(idNegocio: number)
     )();
 }
 
-export function obtenerPlatosPorTipoCacheados(tipoPlato: plato_tipoPlato)
+export function obtenerPlatosPorTipoCacheados(
+    idNegocio: number,
+    tipoPlato: plato_tipoPlato
+)
 {
     return unstable_cache(
         () =>
             prisma.plato.findMany({
-                where: {tipoPlato},
+                where: {
+                    idNegocio,
+                    tipoPlato,
+                },
                 orderBy: {
                     nombre: "asc",
                 },
             }),
-        ["platos", tipoPlato],
-        {tags: [cacheTags.platoTipo(tipoPlato)]}
+        ["platos", String(idNegocio), tipoPlato],
+        {tags: [cacheTags.platoTipo(idNegocio, tipoPlato)]}
     )();
 }
 

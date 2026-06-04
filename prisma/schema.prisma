@@ -27,7 +27,7 @@ model comanda {
 model comanda_plato {
   idComanda Int
   idPlato   Int
-  cantidad  Int      @default(1)
+  cantidad  Int     @default(1)
   comanda   comanda @relation(fields: [idComanda], references: [idComanda], onDelete: Cascade, onUpdate: NoAction, map: "comanda_plato_ibfk_1")
   plato     plato   @relation(fields: [idPlato], references: [idPlato], onDelete: Cascade, onUpdate: NoAction, map: "comanda_plato_ibfk_2")
 
@@ -63,17 +63,18 @@ model menu_plato {
 }
 
 model negocio {
-  idNegocio              Int       @id @default(autoincrement())
-  nombre                 String    @db.VarChar(100)
-  direccion              String    @db.VarChar(255)
-  telefono               String?   @db.VarChar(20)
-  estado                 String?   @default("activo") @db.VarChar(50)
-  fechaAlta              DateTime? @db.Date
-  CIF_NIF                String    @db.VarChar(20)
-  documentoPropiedadUrl String? @db.VarChar(255)
-  comanda                comanda[]
-  menu                   menu[]
-  persona                persona[]
+  idNegocio             Int       @id @default(autoincrement())
+  nombre                String    @db.VarChar(100)
+  direccion             String    @db.VarChar(255)
+  telefono              String?   @db.VarChar(20)
+  estado                String?   @default("activo") @db.VarChar(50)
+  fechaAlta             DateTime? @db.Date
+  CIF_NIF               String    @db.VarChar(20)
+  documentoPropiedadUrl String?   @db.VarChar(255)
+  comanda               comanda[]
+  menu                  menu[]
+  persona               persona[]
+  plato                 plato[]
 }
 
 model persona {
@@ -95,27 +96,27 @@ model persona {
 }
 
 model solicitud_alta {
-  idSolicitudAlta        Int       @id @default(autoincrement())
-  nombreRestaurante      String    @db.VarChar(100)
-  CIF_NIF                String    @db.VarChar(20)
-  personaContacto        String    @db.VarChar(150)
-  email                  String    @db.VarChar(255)
-  telefono               String    @db.VarChar(20)
-  direccion              String    @db.VarChar(255)
-  ciudad                 String    @db.VarChar(100)
-  numeroLocales          String    @db.VarChar(10)
-  comentarios            String?   @db.Text
-  documentoPropiedadUrl  String    @db.VarChar(255)
-  adminPinHash           String    @db.Char(100)
-  estado                 String    @default("pendiente_pago") @db.VarChar(50)
-  stripeCheckoutSessionId String?  @unique @db.VarChar(255)
-  stripePaymentIntentId  String?   @db.VarChar(255)
-  fechaSolicitud         DateTime  @default(now()) @db.DateTime(0)
-  fechaPago              DateTime? @db.DateTime(0)
-  fechaRevision          DateTime? @db.DateTime(0)
-  motivoRechazo          String?   @db.Text
-  idNegocioCreado        Int?
-  idPersonaAdminCreada   Int?
+  idSolicitudAlta         Int       @id @default(autoincrement())
+  nombreRestaurante       String    @db.VarChar(100)
+  CIF_NIF                 String    @db.VarChar(20)
+  personaContacto         String    @db.VarChar(150)
+  email                   String    @db.VarChar(255)
+  telefono                String    @db.VarChar(20)
+  direccion               String    @db.VarChar(255)
+  ciudad                  String    @db.VarChar(100)
+  numeroLocales           String    @db.VarChar(10)
+  comentarios             String?   @db.Text
+  documentoPropiedadUrl   String    @db.VarChar(255)
+  adminPinHash            String    @db.Char(100)
+  estado                  String    @default("pendiente_pago") @db.VarChar(50)
+  stripeCheckoutSessionId String?   @unique @db.VarChar(255)
+  stripePaymentIntentId   String?   @db.VarChar(255)
+  fechaSolicitud          DateTime  @default(now()) @db.DateTime(0)
+  fechaPago               DateTime? @db.DateTime(0)
+  fechaRevision           DateTime? @db.DateTime(0)
+  motivoRechazo           String?   @db.Text
+  idNegocioCreado         Int?
+  idPersonaAdminCreada    Int?
 }
 
 model plato {
@@ -125,8 +126,12 @@ model plato {
   ingredientes     String?         @db.Text
   alergenos        String?         @db.Text
   tipoPlato        plato_tipoPlato
+  idNegocio        Int
+  negocio          negocio         @relation(fields: [idNegocio], references: [idNegocio], onDelete: Cascade, map: "fk_plato_negocio")
   comanda_plato    comanda_plato[]
   menu_plato       menu_plato[]
+
+  @@index([idNegocio], map: "fk_plato_negocio")
 }
 
 enum persona_rol {

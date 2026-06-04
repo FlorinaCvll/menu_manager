@@ -215,7 +215,7 @@ export default function MenuManager({menuHoy}: Propiedades)
         </section>
 
         <PasoTexto
-          titulo="2. Pega los primeros"
+            titulo="2. Primeros"
           icon={Soup}
           placeholder={"Ejemplo:\nEnsalada mixta\nLentejas caseras\nGazpacho"}
           value={primerosTexto}
@@ -223,7 +223,7 @@ export default function MenuManager({menuHoy}: Propiedades)
         />
 
         <PasoTexto
-          titulo="3. Pega los segundos"
+            titulo="3. Segundos"
           icon={UtensilsCrossed}
           placeholder={"Ejemplo:\nPollo asado\nMerluza al horno\nAlbóndigas en salsa"}
           value={segundosTexto}
@@ -231,7 +231,7 @@ export default function MenuManager({menuHoy}: Propiedades)
         />
 
         <PasoTexto
-          titulo="4. Pega los postres"
+            titulo="4. Postres"
           icon={ReceiptText}
           placeholder={"Ejemplo:\nTarta de queso\nFlan casero"}
           value={postresTexto}

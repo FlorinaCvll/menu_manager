@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import {NextResponse} from "next/server";
 import {revalidateTag} from "next/cache";
-import { jsonError, requireApiSession } from "@/lib/api";
+import {jsonError, requireApiSession} from "@/lib/api";
 import {cacheTags} from "@/lib/cache-tags";
-import { prisma } from "@/lib/prisma";
+import {prisma} from "@/lib/prisma";
 
 type LineaEntrada = {
   idPlato: number;
@@ -105,6 +105,7 @@ export async function POST(request: Request) {
 
   const platosValidos = await prisma.plato.count({
     where: {
+        idNegocio: sesion.idNegocio,
       idPlato: {
         in: lineas.map((linea) => linea.idPlato),
       },

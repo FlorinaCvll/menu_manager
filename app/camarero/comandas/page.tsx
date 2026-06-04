@@ -23,8 +23,8 @@ export default async function ComandasPage() {
 
   const [menuHoy, raciones, postres, comandasBase] = await Promise.all([
       obtenerMenuDiaCacheado(sesion.idNegocio, fechaMenu),
-      obtenerPlatosPorTipoCacheados("racion"),
-      obtenerPlatosPorTipoCacheados("postre"),
+      obtenerPlatosPorTipoCacheados(sesion.idNegocio, "racion"),
+      obtenerPlatosPorTipoCacheados(sesion.idNegocio, "postre"),
       obtenerComandasDiaCacheadas(sesion.idNegocio, hoy),
   ]);
 

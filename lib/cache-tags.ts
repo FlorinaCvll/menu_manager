@@ -12,6 +12,7 @@ export const cacheTags = {
     menuDia: (idNegocio: number, fecha: Date | string) =>
         `negocio:${idNegocio}:menu-dia:${fechaTag(fecha)}`,
     comandas: (idNegocio: number) => `negocio:${idNegocio}:comandas`,
-    platoTipo: (tipo: plato_tipoPlato) => `platos:${tipo}`,
+    platoTipo: (idNegocio: number, tipo: plato_tipoPlato) =>
+        `negocio:${idNegocio}:platos:${tipo}`,
     solicitudesAlta: "solicitudes-alta",
 };

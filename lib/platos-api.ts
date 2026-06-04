@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
+import {NextResponse} from "next/server";
 import {revalidateTag} from "next/cache";
-import type { plato_tipoPlato } from "@/generated/prisma/client";
-import { jsonError, requireApiSession } from "@/lib/api";
+import type {plato_tipoPlato} from "@/generated/prisma/client";
+import {jsonError, requireApiSession} from "@/lib/api";
 import {cacheTags} from "@/lib/cache-tags";
-import { prisma } from "@/lib/prisma";
+import {prisma} from "@/lib/prisma";
 
 const tiposValidos: plato_tipoPlato[] = [
   "primero",
@@ -38,14 +38,24 @@ function precioValido(valor: unknown)
     return Number.isFinite(precio) && precio >= 0 ? precio : null;
 }
 
-function revalidarVistasDePlatos(tipo: plato_tipoPlato)
+function revalidarVistasDePlatos(idNegocio: number, tipo: plato_tipoPlato)
 {
-    revalidateTag(cacheTags.platoTipo(tipo), "max");
+    revalidateTag(cacheTags.platoTipo(idNegocio, tipo), "max");
 }
 
 export async function listarPlatos(tipo?: string | null) {
+    const {error, sesion} = await requireApiSession(["admin", "camarero"]);
+
+    if (error || !sesion)
+    {
+        return error;
+    }
+
   const platos = await prisma.plato.findMany({
-    where: validarTipo(tipo) ? { tipoPlato: tipo } : undefined,
+      where: {
+          idNegocio: sesion.idNegocio,
+          ...(validarTipo(tipo) ? {tipoPlato: tipo} : {}),
+      },
     orderBy: {
       nombre: "asc",
     },
@@ -55,9 +65,10 @@ export async function listarPlatos(tipo?: string | null) {
 }
 
 export async function crearPlato(request: Request, tipoFijo?: plato_tipoPlato) {
-  const { error } = await requireApiSession(["admin"]);
+    const {error, sesion} = await requireApiSession(["admin"]);
 
-  if (error) {
+    if (error || !sesion)
+    {
     return error;
   }
 
@@ -99,10 +110,11 @@ export async function crearPlato(request: Request, tipoFijo?: plato_tipoPlato) {
           ingredientes: null,
           alergenos: null,
           tipoPlato: tipo,
+            idNegocio: sesion.idNegocio,
         })),
       });
 
-        revalidarVistasDePlatos(tipo);
+        revalidarVistasDePlatos(sesion.idNegocio, tipo);
       return NextResponse.json({ ok: true });
     }
 
@@ -116,10 +128,11 @@ export async function crearPlato(request: Request, tipoFijo?: plato_tipoPlato) {
         ingredientes: limpiarTexto(body.ingredientes) || null,
         alergenos: limpiarTexto(body.alergenos) || null,
       tipoPlato: tipo,
+        idNegocio: sesion.idNegocio,
     },
   });
 
-    revalidarVistasDePlatos(tipo);
+    revalidarVistasDePlatos(sesion.idNegocio, tipo);
   return NextResponse.json({ ok: true, item: plato });
 }
 
@@ -128,9 +141,10 @@ export async function actualizarPlato(
   idPlato: number,
   tipoFijo?: plato_tipoPlato
 ) {
-  const { error } = await requireApiSession(["admin"]);
+    const {error, sesion} = await requireApiSession(["admin"]);
 
-  if (error) {
+    if (error || !sesion)
+    {
     return error;
   }
 
@@ -164,8 +178,11 @@ export async function actualizarPlato(
         return jsonError("El precio no es valido.");
     }
 
-    const existe = await prisma.plato.findUnique({
-        where: {idPlato},
+    const existe = await prisma.plato.findFirst({
+        where: {
+            idPlato,
+            idNegocio: sesion.idNegocio,
+        },
     });
 
     if (!existe)
@@ -181,17 +198,19 @@ export async function actualizarPlato(
         ingredientes: limpiarTexto(body.ingredientes) || null,
         alergenos: limpiarTexto(body.alergenos) || null,
       tipoPlato: tipo,
+        idNegocio: sesion.idNegocio,
     },
   });
 
-    revalidarVistasDePlatos(tipo);
+    revalidarVistasDePlatos(sesion.idNegocio, tipo);
   return NextResponse.json({ ok: true, item: plato });
 }
 
 export async function eliminarPlato(idPlato: number) {
-  const { error } = await requireApiSession(["admin"]);
+    const {error, sesion} = await requireApiSession(["admin"]);
 
-  if (error) {
+    if (error || !sesion)
+    {
     return error;
   }
 
@@ -200,8 +219,11 @@ export async function eliminarPlato(idPlato: number) {
         return jsonError("Plato no válido.", 400);
     }
 
-    const existe = await prisma.plato.findUnique({
-    where: { idPlato },
+    const existe = await prisma.plato.findFirst({
+        where: {
+            idPlato,
+            idNegocio: sesion.idNegocio,
+        },
   });
 
     if (!existe)
@@ -213,6 +235,6 @@ export async function eliminarPlato(idPlato: number) {
         where: {idPlato},
     });
 
-    revalidarVistasDePlatos(plato.tipoPlato);
+    revalidarVistasDePlatos(sesion.idNegocio, plato.tipoPlato);
   return NextResponse.json({ ok: true });
 }

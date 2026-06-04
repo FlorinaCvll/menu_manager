@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import {NextResponse} from "next/server";
 import {revalidateTag} from "next/cache";
-import { jsonError, requireApiSession } from "@/lib/api";
+import {jsonError, requireApiSession} from "@/lib/api";
 import {cacheTags} from "@/lib/cache-tags";
-import { prisma } from "@/lib/prisma";
+import {prisma} from "@/lib/prisma";
 
 type Params = {
   params: Promise<{ id: string }>;
@@ -67,9 +67,11 @@ async function obtenerComanda(idComanda: number, idNegocio: number) {
   });
 }
 
-async function validarPlatos(lineas: LineaEntrada[]) {
+async function validarPlatos(lineas: LineaEntrada[], idNegocio: number)
+{
   const total = await prisma.plato.count({
     where: {
+        idNegocio,
       idPlato: {
         in: lineas.map((linea) => linea.idPlato),
       },
@@ -132,7 +134,7 @@ export async function PUT(request: Request, { params }: Params) {
     return jsonError("Mesa, comensales y platos son obligatorios.");
   }
 
-  const platosValidos = await validarPlatos(lineas);
+    const platosValidos = await validarPlatos(lineas, sesion.idNegocio);
 
   if (!platosValidos) {
     return jsonError("Hay platos no validos en la comanda.");
@@ -214,6 +216,7 @@ export async function PATCH(request: Request, { params }: Params) {
       idPlato: {
         in: lineas.map((linea) => linea.idPlato),
       },
+        idNegocio: sesion.idNegocio,
       tipoPlato: "postre",
     },
   });

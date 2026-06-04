@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+import {NextResponse} from "next/server";
 import {revalidateTag} from "next/cache";
-import type { Prisma } from "@/generated/prisma/client";
-import { jsonError, requireApiSession } from "@/lib/api";
+import type {Prisma} from "@/generated/prisma/client";
+import {jsonError, requireApiSession} from "@/lib/api";
 import {cacheTags} from "@/lib/cache-tags";
-import { fechaDesdeInput } from "@/lib/fechas";
-import { prisma } from "@/lib/prisma";
+import {fechaDesdeInput} from "@/lib/fechas";
+import {prisma} from "@/lib/prisma";
 
 function limpiarLinea(linea: string) {
   return linea
@@ -63,6 +63,7 @@ function precioValido(valor: unknown)
 
 async function resolverPlatosPorNombre(
   tx: Prisma.TransactionClient,
+  idNegocio: number,
   nombres: string[],
   tipoPlato: "primero" | "segundo" | "postre"
 ) {
@@ -71,6 +72,7 @@ async function resolverPlatosPorNombre(
   for (const nombre of nombres) {
     const existente = await tx.plato.findFirst({
       where: {
+          idNegocio,
         nombre,
         tipoPlato,
       },
@@ -88,6 +90,7 @@ async function resolverPlatosPorNombre(
       data: {
         nombre,
         tipoPlato,
+          idNegocio,
         precioIndividual: 0,
         ingredientes: null,
         alergenos: null,
@@ -169,9 +172,9 @@ export async function POST(request: Request) {
     const fechaMenu = fechaDesdeInput(fecha);
 
   const menu = await prisma.$transaction(async (tx) => {
-    const idsPrimeros = await resolverPlatosPorNombre(tx, primeros, "primero");
-    const idsSegundos = await resolverPlatosPorNombre(tx, segundos, "segundo");
-    const idsPostres = await resolverPlatosPorNombre(tx, postres, "postre");
+      const idsPrimeros = await resolverPlatosPorNombre(tx, sesion.idNegocio, primeros, "primero");
+      const idsSegundos = await resolverPlatosPorNombre(tx, sesion.idNegocio, segundos, "segundo");
+      const idsPostres = await resolverPlatosPorNombre(tx, sesion.idNegocio, postres, "postre");
     const platosIds = [...idsPrimeros, ...idsSegundos, ...idsPostres];
 
     const guardado = await tx.menu.upsert({
@@ -217,9 +220,9 @@ export async function POST(request: Request) {
 
     revalidateTag(cacheTags.menus(sesion.idNegocio), "max");
     revalidateTag(cacheTags.menuDia(sesion.idNegocio, fechaMenu), "max");
-    revalidateTag(cacheTags.platoTipo("primero"), "max");
-    revalidateTag(cacheTags.platoTipo("segundo"), "max");
-    revalidateTag(cacheTags.platoTipo("postre"), "max");
+    revalidateTag(cacheTags.platoTipo(sesion.idNegocio, "primero"), "max");
+    revalidateTag(cacheTags.platoTipo(sesion.idNegocio, "segundo"), "max");
+    revalidateTag(cacheTags.platoTipo(sesion.idNegocio, "postre"), "max");
     revalidateTag(cacheTags.comandas(sesion.idNegocio), "max");
 
   return NextResponse.json({ ok: true, item: menu });

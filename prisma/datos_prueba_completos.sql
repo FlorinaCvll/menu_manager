@@ -59,29 +59,42 @@ VALUES (comentarios), idNegocio =
 VALUES (idNegocio);
 
 INSERT INTO plato
-    (idPlato, nombre, precioIndividual, ingredientes, alergenos, tipoPlato)
-VALUES (1001, 'Ensalada mixta', 8.50, 'Lechuga, tomate, cebolla, atun, huevo y aceitunas', 'Huevo, pescado', 'primero'),
+(idPlato, nombre, precioIndividual, ingredientes, alergenos, tipoPlato, idNegocio)
+VALUES (1001, 'Ensalada mixta', 8.50, 'Lechuga, tomate, cebolla, atun, huevo y aceitunas', 'Huevo, pescado', 'primero',
+        1001),
        (1002, 'Lentejas estofadas', 9.00, 'Lentejas, chorizo, patata, zanahoria y pimenton', 'Puede contener sulfitos',
-        'primero'),
-       (1003, 'Gazpacho andaluz', 6.50, 'Tomate, pepino, pimiento, ajo, pan, aceite y vinagre', 'Gluten', 'primero'),
+        'primero', 1001),
+       (1003, 'Gazpacho andaluz', 6.50, 'Tomate, pepino, pimiento, ajo, pan, aceite y vinagre', 'Gluten', 'primero',
+        1001),
        (1004, 'Pollo asado', 12.50, 'Pollo, patata panadera, ajo, limon y especias', 'Sin alergenos principales',
-        'segundo'),
-       (1005, 'Merluza a la romana', 13.50, 'Merluza, harina, huevo y limon', 'Pescado, gluten, huevo', 'segundo'),
+        'segundo', 1001),
+       (1005, 'Merluza a la romana', 13.50, 'Merluza, harina, huevo y limon', 'Pescado, gluten, huevo', 'segundo',
+        1001),
        (1006, 'Carrillera al vino tinto', 14.90, 'Carrillera de cerdo, vino tinto, verduras y patata', 'Sulfitos',
-        'segundo'),
-       (1007, 'Tarta de queso', 4.50, 'Queso crema, nata, huevo, azucar y galleta', 'Lacteos, huevo, gluten', 'postre'),
-       (1008, 'Flan casero', 4.00, 'Leche, huevo, azucar y caramelo', 'Lacteos, huevo', 'postre'),
-       (1009, 'Arroz con leche', 4.20, 'Leche, arroz, canela, limon y azucar', 'Lacteos', 'postre'),
-       (1010, 'Croquetas de jamon', 7.50, 'Bechamel, jamon, pan rallado y huevo', 'Gluten, lacteos, huevo', 'racion'),
-       (1011, 'Patatas bravas', 6.00, 'Patata, salsa brava y alioli', 'Huevo', 'racion'),
-       (1012, 'Calamares fritos', 9.50, 'Calamar, harina y limon', 'Moluscos, gluten', 'racion') ON DUPLICATE KEY
+        'segundo', 1001),
+       (1007, 'Tarta de queso', 4.50, 'Queso crema, nata, huevo, azucar y galleta', 'Lacteos, huevo, gluten', 'postre',
+        1001),
+       (1008, 'Flan casero', 4.00, 'Leche, huevo, azucar y caramelo', 'Lacteos, huevo', 'postre', 1001),
+       (1009, 'Arroz con leche', 4.20, 'Leche, arroz, canela, limon y azucar', 'Lacteos', 'postre', 1001),
+       (1010, 'Croquetas de jamon', 7.50, 'Bechamel, jamon, pan rallado y huevo', 'Gluten, lacteos, huevo', 'racion',
+        1001),
+       (1011, 'Patatas bravas', 6.00, 'Patata, salsa brava y alioli', 'Huevo', 'racion', 1001),
+       (1012, 'Calamares fritos', 9.50, 'Calamar, harina y limon', 'Moluscos, gluten', 'racion', 1001),
+       (2001, 'Ensalada mixta', 8.50, 'Lechuga, tomate, cebolla, atun, huevo y aceitunas', 'Huevo, pescado', 'primero',
+        1002),
+       (2004, 'Pollo asado', 12.50, 'Pollo, patata panadera, ajo, limon y especias', 'Sin alergenos principales',
+        'segundo', 1002),
+       (2008, 'Flan casero', 4.00, 'Leche, huevo, azucar y caramelo', 'Lacteos, huevo', 'postre', 1002),
+       (2011, 'Patatas bravas', 6.00, 'Patata, salsa brava y alioli', 'Huevo', 'racion', 1002),
+       (2012, 'Calamares fritos', 9.50, 'Calamar, harina y limon', 'Moluscos, gluten', 'racion', 1002) ON DUPLICATE KEY
 UPDATE
     nombre =
 VALUES (nombre), precioIndividual =
 VALUES (precioIndividual), ingredientes =
 VALUES (ingredientes), alergenos =
 VALUES (alergenos), tipoPlato =
-VALUES (tipoPlato);
+VALUES (tipoPlato), idNegocio =
+VALUES (idNegocio);
 
 INSERT INTO menu
 (idMenu, fecha, precio, precioMedio, precioTerraza, datosAdicionales, idPersona, idNegocio)
@@ -111,11 +124,11 @@ VALUES (1001, 1001),
        (1002, 1006),
        (1002, 1009),
        (1002, 1010),
-       (1003, 1001),
-       (1003, 1004),
-       (1003, 1008),
-       (1003, 1011),
-       (1003, 1012) ON DUPLICATE KEY
+       (1003, 2001),
+       (1003, 2004),
+       (1003, 2008),
+       (1003, 2011),
+       (1003, 2012) ON DUPLICATE KEY
 UPDATE
     idMenu =
 VALUES (idMenu), idPlato =
@@ -149,11 +162,11 @@ VALUES (1001, 1001, 1),
        (1003, 1003, 3),
        (1003, 1006, 3),
        (1003, 1009, 3),
-       (1004, 1011, 1),
-       (1004, 1012, 1),
-       (1005, 1001, 2),
-       (1005, 1004, 4),
-       (1005, 1008, 6) ON DUPLICATE KEY
+       (1004, 2011, 1),
+       (1004, 2012, 1),
+       (1005, 2001, 2),
+       (1005, 2004, 4),
+       (1005, 2008, 6) ON DUPLICATE KEY
 UPDATE
     cantidad =
 VALUES (cantidad);

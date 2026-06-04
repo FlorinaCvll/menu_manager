@@ -4,9 +4,9 @@ import {obtenerPlatosPorTipoCacheados} from "@/lib/consultas-cache";
 import type {Prisma} from "@/generated/prisma/client";
 
 export default async function PostresPage() {
-  await requireAdmin();
+    const sesion = await requireAdmin();
 
-    const postres = await obtenerPlatosPorTipoCacheados("postre");
+    const postres = await obtenerPlatosPorTipoCacheados(sesion.idNegocio, "postre");
 
   return (
     <PlatosManager

@@ -2,11 +2,7 @@ import {notFound} from "next/navigation";
 import EditarComandaForm from "@/components/camarero/EditarComandaForm";
 import {requireCamareroOAdmin} from "@/lib/auth";
 import {obtenerFechaSolo} from "@/lib/fechas";
-import {
-    obtenerComandaCacheada,
-    obtenerMenuDiaCacheado,
-    obtenerPlatosPorTipoCacheados,
-} from "@/lib/consultas-cache";
+import {obtenerComandaCacheada, obtenerMenuDiaCacheado, obtenerPlatosPorTipoCacheados,} from "@/lib/consultas-cache";
 import {prisma} from "@/lib/prisma";
 
 type Params = {
@@ -60,8 +56,8 @@ export default async function EditarComandaPage({ params }: Params) {
   const [comanda, menuHoy, racionesBase, postresBase] = await Promise.all([
       obtenerComandaCacheada(sesion.idNegocio, idComanda),
       obtenerMenuDiaCacheado(sesion.idNegocio, fechaMenu),
-      obtenerPlatosPorTipoCacheados("racion"),
-      obtenerPlatosPorTipoCacheados("postre"),
+      obtenerPlatosPorTipoCacheados(sesion.idNegocio, "racion"),
+      obtenerPlatosPorTipoCacheados(sesion.idNegocio, "postre"),
   ]);
 
   if (!comanda) {

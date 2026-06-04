@@ -19,8 +19,8 @@ export default async function AdminPage() {
           orderBy: [{ nombre: "asc" }, { apellidos: "asc" }],
           select: { idPersona: true, nombre: true, apellidos: true, telefono: true },
         }),
-        prisma.plato.count({ where: { tipoPlato: "postre" } }),
-        prisma.plato.count({ where: { tipoPlato: "racion" } }),
+          prisma.plato.count({where: {idNegocio: sesion.idNegocio, tipoPlato: "postre"}}),
+          prisma.plato.count({where: {idNegocio: sesion.idNegocio, tipoPlato: "racion"}}),
         prisma.menu.findUnique({
           where: { idNegocio_fecha: { idNegocio: sesion.idNegocio, fecha: fechaMenu } },
         }),

@@ -2,6 +2,7 @@
 
 import React, {useEffect, useState} from "react";
 import {MonitorSmartphone} from "lucide-react";
+import BotonCerrarSesion from "@/components/layout/BotonCerrarSesion";
 import type {UsuarioSesion} from "@/types/session";
 
 type PropiedadesCamareroSoloMovil = {
@@ -63,6 +64,10 @@ export default function CamareroSoloMovil({
             Esta parte de la aplicacion esta reservada al trabajo en sala. Si
             necesitas entrar aqui, abre la aplicacion desde un movil o una PDA.
           </p>
+
+            <div className="mt-6">
+                <BotonCerrarSesion/>
+            </div>
         </section>
       </main>
     );
