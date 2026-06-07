@@ -1,5 +1,4 @@
 import bcrypt from "bcryptjs";
-import path from "path";
 import {NextResponse} from "next/server";
 import {jsonError, requireApiSession} from "@/lib/api";
 import {prisma} from "@/lib/prisma";
@@ -7,9 +6,8 @@ import {createStripeCheckoutSession, shouldUseMockPayments} from "@/lib/stripe";
 
 export const runtime = "nodejs";
 
-const MAX_DOCUMENT_SIZE = 5 * 1024 * 1024;
-const ALLOWED_DOCUMENT_TYPES = ["application/pdf", "image/jpeg", "image/png"];
 const ALLOWED_NUMERO_LOCALES = ["1", "2", "3", "4+"];
+const DOCUMENTO_NO_REQUERIDO = "No requerido temporalmente";
 
 function getRequiredString(formData: FormData, field: string) {
   const value = String(formData.get(field) || "").trim();
@@ -29,20 +27,6 @@ function esCifNifValido(valor: string)
 function esTelefonoValido(valor: string)
 {
     return /^\+?\d{9,15}$/.test(valor.replace(/\s/g, ""));
-}
-
-function sanitizeFileName(fileName: string) {
-  return fileName
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-zA-Z0-9.\-_]/g, "-")
-    .replace(/-+/g, "-")
-    .toLowerCase();
-}
-
-function guardarDocumentoAlta(safeName: string)
-{
-  return `Documento recibido: ${safeName}`;
 }
 
 export async function GET() {
@@ -74,7 +58,6 @@ export async function POST(request: Request) {
     const numeroLocales = getRequiredString(formData, "numeroLocales") || "1";
     const comentarios = getRequiredString(formData, "comentarios");
     const adminPin = getRequiredString(formData, "adminPin");
-    const documento = formData.get("documentoTitularidad");
 
     if (
       !nombreRestaurante ||
@@ -113,24 +96,6 @@ export async function POST(request: Request) {
           return jsonError("El numero de locales no es valido.");
       }
 
-    if (!(documento instanceof File)) {
-      return jsonError("Debes adjuntar el documento de titularidad.");
-    }
-
-    if (!ALLOWED_DOCUMENT_TYPES.includes(documento.type)) {
-      return jsonError("El documento debe ser PDF, JPG o PNG.");
-    }
-
-    if (documento.size > MAX_DOCUMENT_SIZE) {
-      return jsonError("El documento no puede superar los 5 MB.");
-    }
-
-    const extension = path.extname(documento.name) || ".pdf";
-    const safeName = sanitizeFileName(
-      `${Date.now()}-${nombreRestaurante}${extension}`,
-    );
-    const documentoPropiedadUrl = guardarDocumentoAlta(safeName);
-
     const solicitud = await prisma.solicitud_alta.create({
       data: {
         nombreRestaurante,
@@ -142,7 +107,7 @@ export async function POST(request: Request) {
         ciudad,
         numeroLocales,
         comentarios: comentarios || null,
-        documentoPropiedadUrl,
+        documentoPropiedadUrl: DOCUMENTO_NO_REQUERIDO,
         adminPinHash: await bcrypt.hash(adminPin, 10),
       },
     });

@@ -1,7 +1,7 @@
 "use client";
 
 import React, {useState} from "react";
-import {Building2, Store, Upload,} from "lucide-react";
+import {Building2, Store,} from "lucide-react";
 import {limpiarTelefono} from "@/lib/telefono";
 
 type DatosCompra = {
@@ -39,9 +39,6 @@ export default function FormularioCompraEmpresa({
                                                 }: FormularioCompraEmpresaProps)
 {
   const [datosCompra, setDatosCompra] = useState(datosIniciales);
-  const [documentoTitularidad, setDocumentoTitularidad] = useState<File | null>(
-    null,
-  );
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
 
@@ -56,11 +53,6 @@ export default function FormularioCompraEmpresa({
     event.preventDefault();
     setError("");
 
-    if (!documentoTitularidad) {
-      setError("Debes adjuntar el documento de titularidad.");
-      return;
-    }
-
     setCargando(true);
 
     try {
@@ -68,7 +60,6 @@ export default function FormularioCompraEmpresa({
       Object.entries(datosCompra).forEach(([campo, valor]) => {
         formData.append(campo, valor);
       });
-      formData.append("documentoTitularidad", documentoTitularidad);
 
       const respuesta = await fetch("/api/solicitudes-alta", {
         method: "POST",
@@ -112,9 +103,8 @@ export default function FormularioCompraEmpresa({
                 Información necesaria
               </p>
               <p className="mt-3 text-sm leading-6 text-stone-700">
-                Nombre comercial, CIF/NIF, dirección, datos de contacto y documento
-                acreditativo de titularidad. Estos datos permiten validar el alta y
-                configurar el acceso inicial con garantías.
+                  Nombre comercial, CIF/NIF, direccion y datos de contacto. Estos
+                  datos permiten preparar el pago y configurar el acceso inicial.
               </p>
             </div>
           </div>
@@ -314,45 +304,10 @@ export default function FormularioCompraEmpresa({
                 </div>
               </div>
 
-              <div>
-                <label
-                  htmlFor="documentoTitularidad"
-                  className="mb-2 block text-sm font-medium text-stone-800"
-                >
-                  Documento de titularidad del negocio
-                </label>
-                <label
-                  htmlFor="documentoTitularidad"
-                  className="flex cursor-pointer flex-col gap-3 rounded-[1rem] border border-dashed border-stone-300 bg-white px-4 py-5 text-stone-900 transition hover:border-[var(--accent-strong)] sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <span className="flex items-start gap-3">
-                    <Upload className="mt-0.5 h-5 w-5 shrink-0 text-[var(--accent-strong)]" />
-                    <span>
-                      <span className="block text-sm font-semibold">
-                        {documentoTitularidad
-                          ? documentoTitularidad.name
-                          : "Sube un PDF o imagen"}
-                      </span>
-                      <span className="mt-1 block text-xs leading-5 text-stone-600">
-                        Escritura, licencia, recibo o documento que acredite que
-                        el negocio pertenece a la persona que se registra.
-                      </span>
-                    </span>
-                  </span>
-                  <span className="text-sm font-semibold text-stone-700">
-                    Seleccionar archivo
-                  </span>
-                </label>
-                <input
-                  id="documentoTitularidad"
-                  type="file"
-                  className="sr-only"
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  onChange={(event) =>
-                    setDocumentoTitularidad(event.target.files?.[0] || null)
-                  }
-                  required
-                />
+                <div
+                    className="rounded-[1rem] border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm leading-6 text-emerald-950">
+                    No hace falta subir documentacion para completar el alta inicial.
+                    Si es necesario, se revisara manualmente despues del pago.
               </div>
 
               <div>

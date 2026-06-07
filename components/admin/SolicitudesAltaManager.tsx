@@ -113,8 +113,8 @@ export default function SolicitudesAltaManager({
             Solicitudes de alta de restaurantes
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
-            Revisa las altas recibidas, confirma que el pago y la documentación
-            son correctos, y activa el negocio cuando todo está listo.
+            Revisa las altas recibidas, confirma que el pago y los datos del
+            restaurante son correctos, y activa el negocio cuando todo está listo.
           </p>
         </div>
       </div>
@@ -157,9 +157,9 @@ export default function SolicitudesAltaManager({
       </div>
 
       <div className="mt-5 border border-amber-200/60 bg-amber-50 px-4 py-4 text-sm leading-6 text-stone-800 shadow-sm">
-        Criterio de validación: el pago debe estar confirmado, la documentación debe
-        ser legible y los datos del restaurante deben ser coherentes. Si la revisión
-        es favorable, el negocio se activa en la plataforma.
+        Criterio de validación: el pago debe estar confirmado y los datos del
+        restaurante deben ser coherentes. Si la revisión es favorable, el negocio
+        se activa en la plataforma.
       </div>
 
       {error ? (
