@@ -41,6 +41,30 @@ function sanitizeFileName(fileName: string) {
     .toLowerCase();
 }
 
+async function guardarDocumentoAlta(documento: File, safeName: string)
+{
+  if (process.env.VERCEL)
+  {
+    return `Documento recibido: ${safeName}`;
+  }
+
+  const relativePath = `/uploads/solicitudes-alta/${safeName}`;
+  const uploadDir = path.join(
+      process.cwd(),
+      "public",
+      "uploads",
+      "solicitudes-alta",
+  );
+
+  await mkdir(uploadDir, {recursive: true});
+  await writeFile(
+      path.join(uploadDir, safeName),
+      Buffer.from(await documento.arrayBuffer()),
+  );
+
+  return relativePath;
+}
+
 export async function GET() {
   const { error } = await requireApiSession(["superadmin"]);
 
@@ -125,14 +149,7 @@ export async function POST(request: Request) {
     const safeName = sanitizeFileName(
       `${Date.now()}-${nombreRestaurante}${extension}`,
     );
-    const relativePath = `/uploads/solicitudes-alta/${safeName}`;
-    const uploadDir = path.join(process.cwd(), "public", "uploads", "solicitudes-alta");
-
-    await mkdir(uploadDir, { recursive: true });
-    await writeFile(
-      path.join(uploadDir, safeName),
-      Buffer.from(await documento.arrayBuffer()),
-    );
+    const documentoPropiedadUrl = await guardarDocumentoAlta(documento, safeName);
 
     const solicitud = await prisma.solicitud_alta.create({
       data: {
@@ -145,7 +162,7 @@ export async function POST(request: Request) {
         ciudad,
         numeroLocales,
         comentarios: comentarios || null,
-        documentoPropiedadUrl: relativePath,
+        documentoPropiedadUrl,
         adminPinHash: await bcrypt.hash(adminPin, 10),
       },
     });
