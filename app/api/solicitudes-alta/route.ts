@@ -43,7 +43,7 @@ function sanitizeFileName(fileName: string) {
 
 async function guardarDocumentoAlta(documento: File, safeName: string)
 {
-  if (process.env.VERCEL)
+  if (process.env.ENABLE_LOCAL_UPLOADS !== "true")
   {
     return `Documento recibido: ${safeName}`;
   }
