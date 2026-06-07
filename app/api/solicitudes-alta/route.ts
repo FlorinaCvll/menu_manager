@@ -1,5 +1,4 @@
 import bcrypt from "bcryptjs";
-import {mkdir, writeFile} from "fs/promises";
 import path from "path";
 import {NextResponse} from "next/server";
 import {jsonError, requireApiSession} from "@/lib/api";
@@ -41,28 +40,9 @@ function sanitizeFileName(fileName: string) {
     .toLowerCase();
 }
 
-async function guardarDocumentoAlta(documento: File, safeName: string)
+function guardarDocumentoAlta(safeName: string)
 {
-  if (process.env.ENABLE_LOCAL_UPLOADS !== "true")
-  {
-    return `Documento recibido: ${safeName}`;
-  }
-
-  const relativePath = `/uploads/solicitudes-alta/${safeName}`;
-  const uploadDir = path.join(
-      process.cwd(),
-      "public",
-      "uploads",
-      "solicitudes-alta",
-  );
-
-  await mkdir(uploadDir, {recursive: true});
-  await writeFile(
-      path.join(uploadDir, safeName),
-      Buffer.from(await documento.arrayBuffer()),
-  );
-
-  return relativePath;
+  return `Documento recibido: ${safeName}`;
 }
 
 export async function GET() {
@@ -149,7 +129,7 @@ export async function POST(request: Request) {
     const safeName = sanitizeFileName(
       `${Date.now()}-${nombreRestaurante}${extension}`,
     );
-    const documentoPropiedadUrl = await guardarDocumentoAlta(documento, safeName);
+    const documentoPropiedadUrl = guardarDocumentoAlta(safeName);
 
     const solicitud = await prisma.solicitud_alta.create({
       data: {
